@@ -1,0 +1,6 @@
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync,readdirSync} from 'node:fs';
+import {handleRooms} from '../rooms.mjs';
+export function database(){const db=new DatabaseSync(':memory:');for(const file of readdirSync('drizzle').filter(x=>x.endsWith('.sql')).sort())db.exec(readFileSync('drizzle/'+file,'utf8'));return {prepare(sql){const q=db.prepare(sql);return {args:[],bind(...args){this.args=args;return this},async first(){return q.get(...this.args)||null},async all(){return {results:q.all(...this.args)}},async run(){return {meta:{changes:Number(q.run(...this.args).changes)}}}}},async batch(qs){db.exec('BEGIN');try{const out=[];for(const q of qs)out.push(await q.run());db.exec('COMMIT');return out}catch(e){db.exec('ROLLBACK');throw e}}}}
+export async function request(db,path='',body,auth,method){const r=await handleRooms(new Request('https://arena.test/api/rooms'+path,{method:method||(body?'POST':'GET'),headers:{...(auth?{Authorization:'Bearer '+auth.token}:{}),...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined}),db);return {status:r.status,data:await r.json()}}
+export async function pair(db){const a=(await request(db,'',{name:'Хозяин',fighter:'polina'})).data,b=(await request(db,'/'+a.code+'/join',{name:'Друг',fighter:'azat'})).data;return [a,b]}

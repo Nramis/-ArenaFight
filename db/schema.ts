@@ -1,0 +1,5 @@
+import {integer,sqliteTable,text} from 'drizzle-orm/sqlite-core';
+export const rooms=sqliteTable('rooms',{
+ code:text('code').primaryKey(),hostHash:text('host_hash').notNull(),guestHash:text('guest_hash'),hostName:text('host_name').notNull(),guestName:text('guest_name').notNull().default(''),hostFighter:text('host_fighter').notNull(),guestFighter:text('guest_fighter').notNull().default('nikita'),stage:text('stage').notNull().default('rooftop'),hostReady:integer('host_ready').notNull().default(0),guestReady:integer('guest_ready').notNull().default(0),status:text('status').notNull().default('waiting'),session:integer('session').notNull().default(0),seed:integer('seed').notNull().default(1),createdAt:integer('created_at').notNull(),expiresAt:integer('expires_at').notNull()
+});
+export const signals=sqliteTable('signals',{id:integer('id').primaryKey({autoIncrement:true}),code:text('code').notNull().references(()=>rooms.code,{onDelete:'cascade'}),session:integer('session').notNull(),seat:integer('seat').notNull(),payload:text('payload').notNull()});

@@ -1,3 +1,45 @@
-# ArenaFight
+# Арена
 
-Исходники игры загружаются.
+Godot 4.7.2 fighting game, based on Shoto Fighter (MIT), with nine custom characters, keyboard and touch controls. The original game license and art/sound credits are retained. Game source: `game/`. Browser assets and UI: `public/`. The root route serves `public/arena.html`.
+
+## Online rooms
+
+Create a room, send its six-character code or invitation link, select characters and mark both players ready. The host chooses the arena. Rooms expire after 30 minutes. Random seat keys are hashed in D1 and kept in browser session storage. Only room participants can read signaling messages. Both players use P1 controls on their own device.
+
+D1 room/signaling API: `net/rooms.mjs`, with schema and migrations in `db/` and `drizzle/`. WebRTC signaling and lobby UI: `public/network-core.mjs` and `public/network.mjs`. Reliable ordered input packets travel directly between browsers. `game/globals/net_session.gd` coordinates a 60 Hz lockstep simulation with six frames of buffered input, whole-tree pause on missing input and state digest comparison every 120 frames. Audio randomness is separate from seeded gameplay randomness. Network rematches return both players to the lobby.
+
+Public Google and Cloudflare STUN endpoints are used. No TURN relay is configured, so restrictive mobile or corporate networks may block direct connectivity. The UI reports this limitation. Live two-browser and physical Android QA has not yet been completed in the managed environment. Automated peer/UI tests simulate the network; they are not NAT connectivity tests.
+
+## Build
+
+Export Godot Web to `public/play/game.html`, then run `python compress-web.py`. Build the Worker and assets through the Sites build helper, retaining the existing project ID and audience. Tests: Godot headless gdUnit4 `-s addons/gdUnit4/bin/GdUnitCmdTool.gd --ignoreHeadlessMode -a res://test`; pause/resume smoke `-s res://test/network_gate_smoke.gd`; JS API/peer/lobby tests `node --experimental-vm-modules --test net/test/*.test.mjs`.
+
+### Arena update — combos, hub and movement
+
+The main hub has quick play, the existing online lobby, a fighter carousel, arena cards and a combo guide. No network API changes are required. The web and native HUD now show a persistent combo count and scaled total damage, health numbers and a delayed damage trail.
+
+Confirmed normals can chain LP → LK → MP → MK → HP/HK. Reverse links are rejected; heavy standing attacks end a combo of at least three hits in knockdown, have extra startup/recovery and launch away. Knockdown cannot be re-hit; wake-up has 18 frames of protection which attacking cancels. A counter during startup adds four stun frames. Repeat-button stamina penalties remain enabled. Original nonverbal WAV effects are reproducible with `python tools/create_arena_sounds.py`.
+
+Movement retains fixed-step simulation. Vertical body separation permits jumping across an opponent, with facing updated on landing. Polina teleports across the target; at the arena edge the pair is placed inward to preserve the 46-pixel spacing. Walking has softer reversals and less bob, plus continuous weight shifts. Jump source bounds exclude neighbouring kick shoes without changing the original PNG atlases.
+
+### Eight-frame locomotion and hub typography
+
+Nine fighters now have dedicated eight-frame walk cycles in three shared transparent atlases. Maris has a separate eight-frame quadrupedal cycle with idle breathing and movement tied to distance. `LocomotionAtlas` keeps source UV bounds; `LocomotionArt` replaces the old frame renderer only for applicable states, preserving hit reactions and ability poses. Original PNG files are used unchanged. Health is 1500 for every fighter; attacks retain their damage. Damage tests now compare with each fighter's maximum health.
+
+The hub uses bundled Oswald and Manrope variable fonts, charcoal/chartreuse styling, a new matchup illustration, four functional mode entries and responsive fighter/arena rails. Existing selection, touch controls and online rooms remain connected. Network protocol 3 rejects old clients with incompatible health rules.
+
+### HUD, combo finishers and accelerated buffs
+
+Standing heavy attacks knock down only on hit three or later in a continuous combo; isolated hits use normal stagger and capped pushback. Sweeps and throws retain knockdown. Rafael's energy makes normals cost zero stamina, including when empty, while retaining repeat-button restrictions. Positive buffs shorten attack startup, active and recovery on a private move copy (energy 1.45, protein 1.15, rage 1.25, Maris 1.5, fish 1.1; stacking capped at 2.1). Protein/fish also give small movement boosts. Active attacks keep their sampled timing until complete; subsequent attacks return to normal after the buff.
+
+The native HUD now has framed health panels, bundled Manrope typography, numeric HP, critical-health color and an energy no-cost status. Touch controls keep their positions and keyboard mapping, with rounded square buttons, larger normal labels, pressed states and cooldown progress arcs based on each ability's actual cooldown.
+
+### Combo cameo
+
+A completed series of three or more clean hits pops a user-photo cameo up from the bottom center with “ТВИСТИИ!” and the user-requested original short Toasty voice excerpt. Knockdown finishers trigger immediately; non-knockdown combos trigger when stun ends. The presentation never changes combat state, checksums or inputs. A three-second cosmetic cooldown prevents overlapping cameos, round reset clears pending effects, and the existing audio mute/volume controls apply. Audio attribution and its separate non-CC0 provenance are in the sound sources and public credits.
+
+### Mavrin's rare phone assist
+
+Each accepted phone activation draws one uniform seeded roll from 0..9; only zero summons Salahov (10%). The answer resolves after 24 simulation frames and an interrupt before then cancels it. Failure stays cosmetic. The helper arrives with a warning, closes some distance and performs five localized strikes (80,80,100,100,180 base damage) with existing combo damage scaling; the final kick is a combo finisher. Opponents can block, evade the strike zone or use invulnerability. After spawning, the helper completes independently of Mavrin being hit; round transitions pause/clear it like other effects. The CPU can now also use the phone. Shared RNG, phone timers/rolls and summon progression are covered by deterministic sync diagnostics; protocol 5 rejects incompatible older clients.
+
+The helper's eight-pose transparent atlas is original ImageGen art based on the supplied reference. UV bounds and the extended-kick polygon exclude neighbouring poses without editing the original raster.

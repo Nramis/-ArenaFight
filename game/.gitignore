@@ -1,0 +1,35 @@
+# Local tooling (Godot binary, etc.) — not committed
+.tools/
+
+# Godot 4+ specific ignores
+.godot/
+/android/
+/export/
+# Track the Web preset so browser exports are reproducible.
+
+# Imported assets cache
+*.import
+
+# gdUnit4 reports
+/reports/
+test_results.xml
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.tmp
+
+capture.png
+
+/tools/
+
+# Preserve compression settings for the animation atlases.
+!assets/motion/*.png.import
+!assets/transitions/*.png.import
+
+!assets/postures/*.png.import
+!assets/arenas/*.png.import
+
+!assets/azat.png.import
+
+!assets/polina-specials.png.import

@@ -1,0 +1,51 @@
+# Credits
+Game adapted from Shoto Fighter by aminRX (MIT): https://github.com/aminRX/shoto-fighter-godot
+Original commit: 3d44da0a26db269e3b6d7a4939fb657533548d39. Original LICENSE retained.
+Godot Engine is MIT licensed: https://godotengine.org/license/
+Test framework gdUnit4: Mike Schulze, MIT.
+Rafael, Nikita, Vladislav, Mavrin, Ramis, Ilgiz and Rafael Big Boss fighter atlases generated with imagegen using user-supplied character references. Ability pose assets, seven motion atlases, seven transition atlases, seven crouch/aerial atlases and two arena backgrounds also generated with imagegen. Arena environments are stylized fictional interpretations.
+This build replaces Kung Fu Man art. Original KFM assets are excluded from the web export.
+
+
+SHOTO FIGHTER LICENSE
+MIT License
+
+Copyright (c) 2026 aminRX
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+BASE COMBAT SOUND EFFECTS (nonverbal; cameo excerpt credited separately)
+Kenney: Impact Sounds, RPG Audio, Sci-fi Sounds. Creative Commons CC0.
+https://kenney.nl/assets/impact-sounds
+https://kenney.nl/assets/rpg-audio
+https://kenney.nl/assets/sci-fi-sounds
+Swishes by artisticdude, Creative Commons CC0.
+https://opengameart.org/content/swishes-sound-pack
+License: https://creativecommons.org/publicdomain/zero/1.0/
+
+Azat: eight noncombatant animation frames generated with imagegen from the user-supplied portrait. Black sweater, expressive complaints, no attacks.
+
+Polina: four transparent eight-frame atlases generated with imagegen from the user-supplied photo. Source PNGs preserved; per-pose UV regions derived from alpha bounds.
+
+Hub typography: Oswald and Manrope, Google Fonts contributors, SIL Open Font License 1.1; license copies in /fonts/. Both fonts are served locally.
+2026-10-16: original ImageGen locomotion sheets (72 walking frames and 8 Maris quadrupedal frames), based on the game's established character art; original hub matchup illustration.
+
+Toasty cameo: short original Mortal Kombat / Dan Forden / Midway voice excerpt, requested by the user. Source: https://www.myinstants.com/en/instant/mortal-kombat-toasty-67477/ . Not CC0. Cameo face derived from the user-supplied photograph.
+
+Salahov assist: original eight-pose illustrated atlas based on the user-supplied photo reference.

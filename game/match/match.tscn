@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://match/match_manager.gd" id="1"]
+[ext_resource type="PackedScene" path="res://fighter/fighter.tscn" id="2"]
+[ext_resource type="Script" path="res://input/human_input.gd" id="3"]
+[ext_resource type="PackedScene" path="res://ui/hud.tscn" id="4"]
+
+[ext_resource type="Script" path="res://match/rooftop.gd" id="5"]
+
+[node name="Match" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Rooftop" type="Node2D" parent="."]
+script = ExtResource("5")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(192, 108)
+
+[node name="Player1" parent="." instance=ExtResource("2")]
+position = Vector2(130, 180)
+character_id = "kaze"
+body_color = Color(0.25, 0.55, 0.95, 1)
+
+[node name="HumanInput" type="Node" parent="Player1"]
+script = ExtResource("3")
+player_prefix = "p1"
+
+[node name="Player2" parent="." instance=ExtResource("2")]
+position = Vector2(254, 180)
+character_id = "homura"
+body_color = Color(0.95, 0.4, 0.32, 1)
+
+[node name="HumanInput" type="Node" parent="Player2"]
+script = ExtResource("3")
+player_prefix = "p2"
+
+[node name="HUD" parent="." instance=ExtResource("4")]

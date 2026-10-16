@@ -1,0 +1,28 @@
+name: Complete game file import
+on:
+  push:
+    branches: [main]
+    paths: ['.arena-import/**']
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore original game pack
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import pathlib, hashlib, shutil
+          root = pathlib.Path('.')
+          data = b''.join((root / '.arena-import' / ('game.pck.' + str(i))).read_bytes() for i in range(2))
+          assert hashlib.sha256(data).hexdigest() == '61aaa785e99e6d43f004d149072ea710ff7aa1973504cbce690c7ab11ba3e4cd'
+          (root / 'public/play/game.pck').write_bytes(data)
+          shutil.rmtree(root / '.arena-import')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- public/play/game.pck .arena-import
+          git commit -m 'Restore complete browser game pack'
+          git push origin HEAD:main
