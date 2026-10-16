@@ -4,4 +4,49 @@
 @media(max-width:650px){main{padding:16px 16px 24px}.brand{font-size:28px}.hub-nav{gap:0}.hub-nav button{font-size:14px;padding:7px;min-height:44px}main>header{gap:8px;padding-bottom:12px}.hub-hero{min-height:470px;align-items:end}.hub-hero-art{width:100%;height:260px;top:0;mask-image:linear-gradient(#000 55%,transparent)}.hub-copy{width:100%;padding:205px 0 20px}.hub-copy h2{font-size:clamp(36px,9.5vw,55px);letter-spacing:-.8px;margin-bottom:13px}.hub-copy p{font-size:12px;margin-bottom:18px}.hub-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hub-play,.hub-secondary{min-height:54px;font-size:16px;padding:11px 12px;justify-content:center}.hub-play{gap:12px}.hub-paths{grid-template-columns:1fr 1fr;padding:0}.hub-path,.hub-path:first-child,.hub-path:last-child{padding:14px 10px;min-height:78px;border-bottom:1px solid var(--line)}.hub-path:nth-child(even){border-right:0}.hub-path:nth-child(n+3){border-bottom:0}.hub-path b{font-size:33px}.hub-path strong{font-size:18px}.hub-path span{font-size:10px}.hub-path i{font-size:20px}.hub-roster{grid-template-columns:repeat(9,104px);gap:8px}.hub-fighter .portrait{height:112px}.hub-section-head{margin-top:23px}.hub-section-head h3{font-size:24px}.hub-section-head span{font-size:10px}.hub-arenas{gap:7px}.hub-stage-art{height:104px;padding:9px;font-size:20px}.hub-guide{padding:19px}.hub-guide h2{font-size:25px}.hub-combo{font-size:11px}.hub-nav button:focus-visible{outline-offset:0}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
+[hidden]{display:none!important}
+.intro,.selection,.arena-select,.touchhint{display:none}
+.hub-setup{scroll-margin-top:24px;margin-top:28px}
+.hub .fighter-picker,.hub .net-dialog{position:static;inset:auto;overflow:visible;background:transparent;z-index:auto}
+.hub .picker-shell,.hub .net-shell{max-width:none;margin:0;padding:0}
+.picker-head .eyebrow{display:none}
+.picker-head h2,.net-head h2{font-size:30px;scroll-margin-top:24px}
+.picker-target{font-size:12px;color:var(--acid);margin:0 0 12px}
+.picker-slots{margin:20px 0 12px}
+.picker-slots button{background:#1b2027;border-color:#41464e;border-radius:4px;transition:background .16s,border-color .16s}
+.picker-slots button.active{background:var(--acid);color:#18210e;border-color:var(--acid)}
+.roster-cards{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.roster-card{min-height:210px;background:#1a1e25;border-color:#343a44;border-radius:4px;transition:background .16s,border-color .16s}
+.roster-card:hover{background:#262c32;border-color:#7a855f}
+.roster-card.chosen{border-color:var(--acid);background:#293021}
+.roster-card strong{font-size:18px}
+.roster-card small{color:#b2b8c2;font-size:11px}
+.roster-card .roster-portrait{height:126px}
+.picker-settings{grid-template-columns:1fr 1fr;max-width:700px}
+.picker-settings select{background:#1b2027;border-color:#4b535c;color:var(--paper)}
+.picker-bottom{background:#101216f5;border-color:var(--line);z-index:3}
+.picker-bottom button{background:var(--acid);font-family:Oswald;font-size:21px;min-width:220px}
+.hub-path.active strong,.hub-path.active b,.hub-path.active i{color:var(--acid)}
+.hub-path.active{background:transparent;color:var(--paper);box-shadow:inset 0 -2px var(--acid)}
+.home-nav:first-child{border-bottom-color:transparent!important}
+.hub-nav #headerBattleMenu{color:var(--acid);border:1px solid #6b794c;border-radius:4px}
+.battle-toolbar{position:absolute;right:12px;top:25%;z-index:35}
+.battle-toolbar button{min-height:44px;background:#101216ed;border:1px solid #84965a;color:var(--acid);border-radius:5px;padding:9px 13px;font-size:14px}
+.battle-toolbar kbd{margin-left:8px;font-size:10px;color:#c2c9b1}
+.battle-menu{width:min(380px,calc(100% - 32px));max-height:calc(100dvh - 24px);overflow:auto;padding:26px;background:#15191f;color:var(--paper);border:1px solid #77835d;border-radius:8px;box-shadow:0 16px 80px #0008}
+.battle-menu::backdrop{background:#05080cbb;backdrop-filter:blur(5px)}
+.battle-menu[open]{animation:menu-enter .16s ease-out}
+.battle-menu h2{font-family:Oswald;font-size:30px;margin:7px 0 10px;line-height:1.2}
+.battle-menu p{font-size:13px;color:#bdc5cf;line-height:1.6;margin:0 0 22px}
+.battle-menu button{display:block;width:100%;min-height:48px;padding:12px;margin-top:8px;border:1px solid #46505c;border-radius:4px;color:var(--paper);font-size:14px;text-align:left}
+.battle-menu button:hover{background:#2c343c}
+.battle-menu .battle-primary{background:var(--acid);color:#18210e;border-color:var(--acid);font-weight:800}
+.battle-menu .battle-primary:hover{background:#e6ff9a}
+.battle-menu #battleHome{color:#ffc4b6;margin-top:18px}
+.game:fullscreen .battle-menu{position:fixed}
+@keyframes menu-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:650px){.roster-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.roster-card{min-height:210px}.picker-slots button{font-size:12px}.picker-settings{grid-template-columns:1fr}.picker-bottom button{width:100%;min-width:0}.picker-bottom span{font-size:11px}.hub-setup{margin-top:24px}.battle-toolbar{right:8px}.battle-toolbar kbd{display:none}.battle-menu{padding:20px}.hub-nav button{font-size:13px}.hub-path.active{box-shadow:inset 0 -2px var(--acid)}}
+@media(orientation:landscape) and (max-height:500px){.roster-cards{grid-template-columns:repeat(5,minmax(0,1fr))}.roster-card .roster-portrait{height:90px}.roster-card{min-height:180px}.battle-menu{padding:16px 22px}.battle-menu p{margin-bottom:12px}.battle-menu button{min-height:44px;margin-top:5px}}
+@media(prefers-reduced-motion:reduce){.battle-menu[open]{animation:none}}
+
 .controls kbd{background:#202b36;border-color:#596a75;border-radius:6px;color:#f5f4e9;box-shadow:0 3px 0 #05090e;min-width:27px;height:28px;font-family:Manrope}.arenafooter{padding:12px 16px;gap:9px;background:#131b24}.arenafooter button{border:1px solid #34434c;border-radius:7px;min-height:36px}.arenafooter button:hover{border-color:#d6fc63;background:#263322}.paneltop{font-family:Oswald;letter-spacing:.3px}.panel .row{line-height:1.65}.arenafooter select{min-height:34px;border-color:#52636c}@media(pointer:coarse){.arenafooter button{min-height:44px}}

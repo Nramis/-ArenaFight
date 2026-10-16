@@ -1,29 +1,64 @@
-const $ = id=>document.getElementById(id);
-const roster=window.ArenaOnlineHooks.roster;
-const hub=document.createElement('section');hub.className='hub';hub.id='arenaHub';hub.setAttribute('aria-label','Главный хаб');
-hub.innerHTML=`<div class="hub-hero"><img class="hub-hero-art" src="hub-matchup.png" alt="Рафаэль и Полина перед боем"><div class="hub-copy"><h2>ВСЕ СВОИ.<br>КАЖДЫЙ ЗА СЕБЯ.</h2><p>Друзья. Знакомые места.<br>2D файтинг про нас — с характером и без правил.</p><div class="hub-actions"><button id="hubFight" class="hub-play">НАЧАТЬ БОЙ <span>→</span></button><button id="hubOnline" class="hub-secondary">ОНЛАЙН С ДРУГОМ</button></div></div></div>
+const $ = id => document.getElementById(id);
+const menu = window.ArenaMenu;
+const hub = document.createElement('section');
+hub.className = 'hub';
+hub.id = 'arenaHub';
+hub.setAttribute('aria-label', 'Главное меню');
+hub.innerHTML = `<div class="hub-hero"><img class="hub-hero-art" src="hub-matchup.png" alt="Рафаэль и Полина перед боем"><div class="hub-copy"><h2>ВСЕ СВОИ.<br>КАЖДЫЙ ЗА СЕБЯ.</h2><p>Друзья. Знакомые места.<br>2D файтинг про нас — с характером и без правил.</p><div class="hub-actions"><button id="hubFight" class="hub-play">ВЫБРАТЬ БОЙЦОВ <span>↓</span></button><button id="hubOnline" class="hub-secondary">ОНЛАЙН С ДРУГОМ</button></div></div></div>
 <div class="hub-paths"><button class="hub-path" id="hubCpu"><b>01</b><div><strong>ПРОТИВ ИИ</strong><span>Проверь себя</span></div><i>›</i></button><button class="hub-path" id="hubDuo"><b>02</b><div><strong>ВДВОЁМ</strong><span>На одном компьютере</span></div><i>›</i></button><button class="hub-path" id="hubNet"><b>03</b><div><strong>ОНЛАЙН</strong><span>Сразись с другом</span></div><i>›</i></button><button class="hub-path" id="hubGuide"><b>04</b><div><strong>ШКОЛА СЕРИЙ</strong><span>Освой комбо</span></div><i>›</i></button></div>
-<div class="hub-section-head" id="hubFighters"><h3>БОЙЦЫ</h3><span>Выбери своего · 1500 здоровья</span></div><div class="hub-roster" id="hubRoster"></div>
-<div class="hub-section-head" id="hubArenas"><h3>АРЕНЫ</h3></div><div class="hub-arenas"><button class="hub-stage" data-stage="rooftop"><div class="hub-stage-art">КРЫША</div></button><button class="hub-stage" data-stage="taneko"><div class="hub-stage-art" style="background-image:linear-gradient(0deg,#000b,transparent),url(hub-taneko.png)">ТАНЕКО</div></button><button class="hub-stage" data-stage="office"><div class="hub-stage-art" style="background-image:linear-gradient(0deg,#000b,transparent),url(hub-office.png)">ТАТНЕФТЬ</div></button></div>`;
+<section id="hubSetup" class="hub-setup" aria-label="Настройка боя"></section>`;
 document.querySelector('.intro').before(hub);
-const home=document.createElement('button');home.className='hub-match-link';home.textContent='← Главный хаб';hub.after(home);
+const setup = $('hubSetup');
+setup.append($('fighterPicker'), $('netDialog'));
 const guide=document.createElement('dialog');guide.className='hub-guide';guide.setAttribute('aria-labelledby','comboTitle');guide.innerHTML=`<header><h2 id="comboTitle">Серия начинается с тебя</h2><button id="guideClose" aria-label="Закрыть подсказки">✕</button></header><p>Нажимай следующий удар после попадания предыдущего. На блоке соперник может выждать паузу и ответить. Азат остаётся исключением: он только жалуется.</p><div class="hub-combo">РУКА → НОГА → СР. РУКА → СР. НОГА → ТЯЖЁЛЫЙ<br><kbd>U</kbd> → <kbd>J</kbd> → <kbd>I</kbd> → <kbd>K</kbd> → <kbd>O</kbd> / <kbd>L</kbd></div><ol><li><strong>Начни с трёх.</strong> U → I → O: лёгкий, средний, тяжёлый. Добавляй ноги, когда привыкнешь к ритму.</li><li><strong>Заверши падением.</strong> Тяжёлая рука O или нога L сбивает с ног на третьем и последующих попаданиях комбо. Одиночный тяжёлый удар оставляет соперника стоять. Внизу + L — подсечка. Лежачий защищён, при подъёме ненадолго светится.</li><li><strong>Поймай контрудар.</strong> Попади во время чужого замаха: соперник дольше не может ответить.</li><li><strong>Меняй рисунок.</strong> Прыжок + удар — атака сверху. Вниз + удар — атака сидя. Отход от соперника — блок, отход + вниз — низкий блок.</li></ol><p>На телефоне: РУКА 1 → НОГА 1 → РУКА 2 → НОГА 2 → РУКА 3 или НОГА 3. Не нужно удерживать кнопки — делай отдельные нажатия. Полоска под здоровьем — выносливость; повтор одной атаки расходует её быстрее.</p><button class="start" id="guidePlay">ВЫБРАТЬ БОЙЦА →</button>`;document.body.append(guide);
-function pick(){if(window.ArenaOnline?.active){$('networkMode').click();return}$('start').click()}
-$('hubFight').onclick=pick;$('hubOnline').onclick=()=>$('networkMode').click();$('hubGuide').onclick=()=>guide.showModal();$('guideClose').onclick=()=>guide.close();$('guidePlay').onclick=()=>{guide.close();pick()};guide.addEventListener('click',e=>{if(e.target===guide){const r=guide.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)guide.close()}});
-for(const [id,info] of Object.entries(roster)) { const card=document.createElement('button');card.className='hub-fighter';card.setAttribute('aria-label','Выбрать: '+info.name);const art=document.createElement('div');art.className='portrait';art.style.backgroundImage=`url(portraits/${id}.png)`;if(id==='yusup'){art.style.backgroundSize='400% 400%';art.style.backgroundPosition='left top'}const name=document.createElement('strong');name.textContent=info.name;card.append(art,name);card.onclick=()=>{if(window.ArenaOnline?.active){$('networkMode').click();return}$('fighter1').value=id;pick()};$('hubRoster').append(card) }
-for(const card of hub.querySelectorAll('[data-stage]'))card.onclick=()=>{if(window.ArenaOnline?.active){$('networkMode').click();return}$('arenaStage').value=card.dataset.stage;pick()};
-home.onclick=()=>{document.body.classList.remove('arena-started');if(window.ArenaOnline?.active)window.ArenaOnline.backToLobby();else $('game').contentWindow?.postMessage({type:'arena-menu-state',paused:true},location.origin);window.scrollTo({top:0,behavior:'smooth'})};
-const frameObserver=new MutationObserver(()=>{if($('game').getAttribute('src')?.includes('play/game.html'))document.body.classList.add('arena-started')});frameObserver.observe($('game'),{attributes:true,attributeFilter:['src']});
-const pickerHome=document.createElement('button');pickerHome.className='hub-small';pickerHome.textContent='← Главный хаб';pickerHome.style.minHeight='44px';$('pickerTitle').after(pickerHome);pickerHome.onclick=()=>{$('pickerClose').click();home.click();if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})};
 
-$('hubCpu').onclick=()=>{if(!window.ArenaOnline?.active)$('cpu').click();pick()};
-$('hubDuo').onclick=()=>{if(!window.ArenaOnline?.active)$('two').click();pick()};
-$('hubNet').onclick=()=>$('networkMode').click();
-function hubSection(id){if(window.ArenaOnline?.active){$('networkMode').click();return}if(document.body.classList.contains('arena-started'))home.click();requestAnimationFrame(()=>$(id).scrollIntoView({behavior:'smooth'}))}
-const topHeader=document.querySelector('main > header');topHeader.querySelector('.brand').textContent='АРЕНА';topHeader.querySelector('.tag').remove();
-const nav=document.createElement('nav');nav.className='hub-nav';nav.setAttribute('aria-label','Главное меню');
-for(const [text,action] of [['Играть',pick],['Бойцы',()=>hubSection('hubFighters')],['Арены',()=>hubSection('hubArenas')],['Как играть',()=>guide.showModal()]]){const b=document.createElement('button');b.textContent=text;b.onclick=action;nav.append(b)}topHeader.append(nav);
-function dialogState(){document.body.classList.toggle('hub-dialog-open',!$('fighterPicker').hidden||!$('netDialog').hidden)}
-const dialogObserver=new MutationObserver(dialogState);for(const id of ['fighterPicker','netDialog'])dialogObserver.observe($(id),{attributes:true,attributeFilter:['hidden']});
+function settings(value = menu.mode) { return menu.configure(value); }
+function online() { window.ArenaOnline.show(); $('netTitle').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function help() { guide.showModal(); }
+$('hubFight').onclick = () => settings();
+$('hubCpu').onclick = () => settings('cpu');
+$('hubDuo').onclick = () => settings('2p');
+for (const id of ['hubOnline', 'hubNet']) $(id).onclick = online;
+$('hubGuide').onclick = help;
+$('guideClose').onclick = () => guide.close();
+$('guidePlay').onclick = () => { guide.close(); settings(); };
+guide.addEventListener('click', event => {
+    if (event.target !== guide) return;
+    const bounds = guide.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) guide.close();
+});
 
-dialogState();
+const header = document.querySelector('main > header');
+header.querySelector('.brand').textContent = 'АРЕНА';
+header.querySelector('.tag').remove();
+const nav = document.createElement('nav');
+nav.className = 'hub-nav';
+nav.setAttribute('aria-label', 'Навигация');
+for (const [label, action] of [['Настроить бой', () => settings()], ['Онлайн', online], ['Как играть', help]]) {
+    const button = document.createElement('button');
+    button.textContent = label;
+    button.className = 'home-nav';
+    button.onclick = action;
+    nav.append(button);
+}
+const battle = document.createElement('button');
+battle.id = 'headerBattleMenu';
+battle.textContent = '☰ Меню боя';
+battle.onclick = menu.battle;
+nav.append(battle);
+header.append(nav);
+
+function sync() {
+    const onlineVisible = !$('netDialog').hidden;
+    for (const [id, active] of [['hubCpu', !onlineVisible && menu.mode === 'cpu'], ['hubDuo', !onlineVisible && menu.mode === '2p'], ['hubNet', onlineVisible]]) {
+        $(id).classList.toggle('active', active);
+        $(id).setAttribute('aria-pressed', String(active));
+    }
+    battle.hidden = !menu.playing;
+    for (const button of nav.querySelectorAll('.home-nav')) button.hidden = menu.playing;
+    document.body.classList.remove('hub-dialog-open');
+}
+window.addEventListener('arena:navigation', sync);
+new MutationObserver(sync).observe($('netDialog'), { attributes: true, attributeFilter: ['hidden'] });
+if ($('netDialog').hidden) menu.mount();
+sync();

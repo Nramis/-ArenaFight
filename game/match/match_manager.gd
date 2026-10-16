@@ -84,7 +84,7 @@ func _physics_process(delta: float) -> void:
     if Input.is_action_just_pressed("toggle_audio"):
         GameConfig.set_audio(not GameConfig.sound_enabled)
     if Input.is_action_just_pressed("ui_cancel"):
-        open_selection()
+        open_selection("menu")
         return
     if Input.is_action_just_pressed("toggle_debug"):
         var cfg := get_node_or_null("/root/GameConfig")
@@ -216,11 +216,13 @@ func play_fighter_sound(event: String) -> void:
     if sfx != null:
         sfx.play_event(event)
 
-func open_selection() -> void:
+func open_selection(view: String = "settings") -> void:
+    if view == "menu" and GameConfig.open_browser_selection(view):
+        return
     if NetSession.enabled:
         NetSession.request_lobby()
         return
-    if not GameConfig.open_browser_selection():
+    if not GameConfig.open_browser_selection(view):
         get_tree().change_scene_to_file("res://ui/main_menu.tscn")
 
 func rematch() -> void:
