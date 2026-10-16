@@ -10,11 +10,15 @@ Base combat effects below are CC0 and nonverbal. The separately attributed Toast
 | https://opengameart.org/content/swishes-sound-pack | artisticdude | swish-1, swish-2, swish-3, swish-5, swish-8 WAV files | CC0 |
 
 CC0: https://creativecommons.org/publicdomain/zero/1.0/
-Original Kenney license notices are preserved in this directory. Sample file names are retained. The event mapping and relative playback levels are defined in `../../fx/sfx.gd`; effects share a bounded ten-voice pool on the ArenaSFX audio bus. No voice synthesis is used.
+Original Kenney license notices are preserved in this directory. Sample file names are retained. The event mapping and relative playback levels are defined in `../../fx/sfx.gd`; effects share a bounded ten-voice pool on the ArenaSFX audio bus.
 
 ## Arena update
 
 `arena_*.wav`: six original synthesized nonverbal effects created for this game: combo, finisher, counter, body fall, heavy swing and round chime. No external recordings or voices. The reproducible generator is `tools/create_arena_sounds.py`.
+
+## Юсуп
+
+`yusupStory.wav` («Там, короче…») и `yusupForget.wav` («А забей!») синтезированы установленным голосом Microsoft Pavel через Windows SAPI. Это обычная синтезированная речь, без клонирования голоса человека с фотографии. Генератор: `tools/generateYusupVoice.ps1`. Обе записи используют общие настройки громкости и отключения звука игры.
 
 ## User-requested Toasty cameo
 

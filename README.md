@@ -1,6 +1,6 @@
 # Арена
 
-Godot 4.7.2 fighting game, based on Shoto Fighter (MIT), with nine custom characters, keyboard and touch controls. The original game license and art/sound credits are retained. Game source: `game/`. Browser assets and UI: `public/`. The root route serves `public/arena.html`.
+Godot 4.7.2 fighting game, based on Shoto Fighter (MIT), with ten custom characters, keyboard and touch controls. The original game license and art/sound credits are retained. Game source: `game/`. Browser assets and UI: `public/`. The root route serves `public/arena.html`.
 
 ## Локальный запуск
 
@@ -63,3 +63,9 @@ A completed series of three or more clean hits pops a user-photo cameo up from t
 Each accepted phone activation draws one uniform seeded roll from 0..9; only zero summons Salahov (10%). The answer resolves after 24 simulation frames and an interrupt before then cancels it. Failure stays cosmetic. The helper arrives with a warning, closes some distance and performs five localized strikes (80,80,100,100,180 base damage) with existing combo damage scaling; the final kick is a combo finisher. Opponents can block, evade the strike zone or use invulnerability. After spawning, the helper completes independently of Mavrin being hit; round transitions pause/clear it like other effects. The CPU can now also use the phone. Shared RNG, phone timers/rolls and summon progression are covered by deterministic sync diagnostics; protocol 5 rejects incompatible older clients.
 
 The helper's eight-pose transparent atlas is original ImageGen art based on the supplied reference. UV bounds and the extended-kick polygon exclude neighbouring poses without editing the original raster.
+
+### Юсуп
+
+Новый боец по фотографии: «А забей» останавливает обоих участников на время двух последовательных реплик и затем удерживает выносливость противника на нуле 120 кадров; «Мне холодно!» после поднятия пульта включает красный фильтр арены и горение на 180 кадров; «Плавунец» меняет костюм и наносит контактный урон мельницей руками в течение 300 кадров. Таймеры работают при 60 Гц и включены в сетевую диагностику; протокол 6 отклоняет несовместимые старые клиенты. Перезарядки: 10, 12 и 11 секунд.
+
+Реплики синтезированы Microsoft Pavel и сопровождаются субтитрами. Новый RGBA-атлас создан встроенным ImageGen по фотографии; файлы и UV-границы описаны в game/assets/yusupArt.md.

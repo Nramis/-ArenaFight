@@ -49,3 +49,5 @@ Hub typography: Oswald and Manrope, Google Fonts contributors, SIL Open Font Lic
 Toasty cameo: short original Mortal Kombat / Dan Forden / Midway voice excerpt, requested by the user. Source: https://www.myinstants.com/en/instant/mortal-kombat-toasty-67477/ . Not CC0. Cameo face derived from the user-supplied photograph.
 
 Salahov assist: original eight-pose illustrated atlas based on the user-supplied photo reference.
+
+Юсуп: оригинальный атлас ImageGen по фотографии пользователя. Реплики «Там, короче…» и «А забей!» синтезированы Microsoft Pavel (Windows SAPI); голос человека с фотографии не клонировался.
