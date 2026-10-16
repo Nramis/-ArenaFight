@@ -4,7 +4,7 @@ const hash=async v=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-25
 const json=(v,status=200)=>Response.json(v,{status,headers:{'Cache-Control':'no-store'}});
 const fail=(message,status=400)=>{throw Object.assign(new Error(message),{status})};
 const view=r=>({code:r.code,host:{name:r.host_name,fighter:r.host_fighter,ready:!!r.host_ready},guest:r.guest_hash?{name:r.guest_name,fighter:r.guest_fighter,ready:!!r.guest_ready}:null,stage:r.stage,status:r.status,session:r.session,seed:r.seed});
-export async function handleRooms(req,db){try{
+export async function handleRooms(req,db,{relayAvailable=false}={}){try{
  if(!db)fail('Сервер комнат недоступен',503);
  const u=new URL(req.url),p=u.pathname.replace(/^\/api\/rooms\/?/,'').split('/').filter(Boolean),now=Date.now();let b={};
  if(p.length>2)fail('Не найдено',404);
@@ -30,12 +30,12 @@ export async function handleRooms(req,db){try{
   const own=seat===0?'host_fighter':'guest_fighter',ready=seat===0?'host_ready':'guest_ready';
   if((b.fighter!==undefined&&b.fighter!==r[own])||(b.stage!==undefined&&b.stage!==r.stage)){if(r.status!=='waiting')fail('Сначала вернитесь в лобби',409);await db.prepare(`UPDATE rooms SET ${own}=?,stage=?,host_ready=0,guest_ready=0 WHERE code=?`).bind(b.fighter??r[own],b.stage??r.stage,code).run();}
   if(typeof b.ready==='boolean'){if(!b.ready&&r.status!=='waiting')await db.prepare("UPDATE rooms SET status='waiting',host_ready=0,guest_ready=0,session=session+1 WHERE code=?").bind(code).run();else await db.prepare(`UPDATE rooms SET ${ready}=? WHERE code=?`).bind(Number(b.ready),code).run();}
-  const seed=(crypto.getRandomValues(new Uint32Array(1))[0]&0x7fffffff)||1;await db.prepare("UPDATE rooms SET status='connecting',session=session+1,seed=? WHERE code=? AND status='waiting' AND host_ready=1 AND guest_ready=1 AND guest_hash IS NOT NULL").bind(seed,code).run();r=await db.prepare('SELECT * FROM rooms WHERE code=?').bind(code).first();return json({room:view(r),seat});
+  const seed=(crypto.getRandomValues(new Uint32Array(1))[0]&0x7fffffff)||1;await db.prepare("UPDATE rooms SET status='connecting',session=session+1,seed=? WHERE code=? AND status='waiting' AND host_ready=1 AND guest_ready=1 AND guest_hash IS NOT NULL").bind(seed,code).run();r=await db.prepare('SELECT * FROM rooms WHERE code=?').bind(code).first();if(!r)fail('Комната закрыта или срок истёк',404);return json({room:view(r),seat});
  }
  if(req.method==='POST'&&p[1]==='signal'){
   if(b.session!==r.session||r.status!=='connecting')fail('Сессия устарела',409);if(!Array.isArray(b.messages)||b.messages.length<1||b.messages.length>24||b.messages.some(m=>!m||!['offer','answer','ice'].includes(m.type)||JSON.stringify(m).length>16000))fail('Неверные данные подключения');
   const n=await db.prepare('SELECT COUNT(*) AS n FROM signals WHERE code=? AND session=?').bind(code,r.session).first();if(n.n+b.messages.length>512)fail('Слишком много данных',429);await db.batch(b.messages.map(m=>db.prepare('INSERT INTO signals(code,session,seat,payload) VALUES(?,?,?,?)').bind(code,r.session,seat,JSON.stringify(m))));return json({ok:true});
  }
- if(req.method==='GET'&&!p[1]){const since=Math.max(0,Math.min(Number(u.searchParams.get('since'))||0,Number.MAX_SAFE_INTEGER)),ss=await db.prepare('SELECT id,payload FROM signals WHERE code=? AND session=? AND seat!=? AND id>? ORDER BY id LIMIT 64').bind(code,r.session,seat,since).all();return json({room:view(r),seat,signals:ss.results.map(s=>({id:s.id,...JSON.parse(s.payload)}))});}
+ if(req.method==='GET'&&!p[1]){const since=Math.max(0,Math.min(Number(u.searchParams.get('since'))||0,Number.MAX_SAFE_INTEGER)),ss=await db.prepare('SELECT id,payload FROM signals WHERE code=? AND session=? AND seat!=? AND id>? ORDER BY id LIMIT 64').bind(code,r.session,seat,since).all();return json({room:view(r),seat,relayAvailable,signals:ss.results.map(s=>({id:s.id,...JSON.parse(s.payload)}))});}
  fail('Не найдено',404);
 }catch(e){if(e.status)return json({error:e.message},e.status);console.error('Room API:',String(e.message));return json({error:'Сбой сервера комнат'},500)}}
