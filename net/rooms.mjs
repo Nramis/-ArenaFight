@@ -21,15 +21,24 @@ export async function handleRooms(req,db,{relayAvailable=false}={}){try{
  let r=await db.prepare('SELECT * FROM rooms WHERE code=?').bind(code).first();if(!r||r.expires_at<now)fail('Комната закрыта или срок истёк',404);
  if(p[1]==='join'&&req.method==='POST'){
   if(r.guest_hash)fail('В комнате уже два игрока',409);const key=crypto.randomUUID().replaceAll('-','');
-  const q=await db.prepare("UPDATE rooms SET guest_hash=?,guest_name=?,guest_fighter=?,host_ready=0,guest_ready=0 WHERE code=? AND guest_hash IS NULL AND status='waiting'").bind(await hash(key),name(b.name),fighters.has(b.fighter)?b.fighter:'nikita',code).run();if(q.meta.changes!==1)fail('Место уже занято',409);return json({code,token:key,seat:1},201);
+  const q=await db.prepare("UPDATE rooms SET guest_hash=?,guest_name=?,guest_fighter=?,guest_ready=0 WHERE code=? AND guest_hash IS NULL AND status='waiting'").bind(await hash(key),name(b.name),fighters.has(b.fighter)?b.fighter:'nikita',code).run();if(q.meta.changes!==1)fail('Место уже занято',409);return json({code,token:key,seat:1},201);
  }
  const key=req.headers.get('authorization')?.replace(/^Bearer /,'')||'';if(!/^[a-f0-9]{32}$/.test(key))fail('Нужен ключ игрока',401);const digest=await hash(key),seat=digest===r.host_hash?0:digest===r.guest_hash?1:-1;if(seat<0)fail('Неверный ключ игрока',403);
- if(req.method==='DELETE'&&!p[1]){await db.prepare('DELETE FROM signals WHERE code=?').bind(code).run();if(seat===0)await db.prepare('DELETE FROM rooms WHERE code=?').bind(code).run();else await db.prepare("UPDATE rooms SET guest_hash=NULL,guest_name='',host_ready=0,guest_ready=0,status='waiting',session=session+1 WHERE code=?").bind(code).run();return json({ok:true});}
+ if(req.method==='DELETE'&&!p[1]){await db.prepare('DELETE FROM signals WHERE code=?').bind(code).run();if(seat===0)await db.prepare('DELETE FROM rooms WHERE code=?').bind(code).run();else await db.prepare("UPDATE rooms SET guest_hash=NULL,guest_name='',host_ready=CASE WHEN status='waiting' THEN host_ready ELSE 0 END,guest_ready=0,status='waiting',session=session+1 WHERE code=?").bind(code).run();return json({ok:true});}
  if(req.method==='POST'&&p[1]==='update'){
   if(b.fighter!==undefined&&!fighters.has(b.fighter))fail('Неизвестный боец');if(b.stage!==undefined&&(seat!==0||!stages.has(b.stage)))fail('Арену выбирает хозяин',403);
   const own=seat===0?'host_fighter':'guest_fighter',ready=seat===0?'host_ready':'guest_ready';
-  if((b.fighter!==undefined&&b.fighter!==r[own])||(b.stage!==undefined&&b.stage!==r.stage)){if(r.status!=='waiting')fail('Сначала вернитесь в лобби',409);await db.prepare(`UPDATE rooms SET ${own}=?,stage=?,host_ready=0,guest_ready=0 WHERE code=?`).bind(b.fighter??r[own],b.stage??r.stage,code).run();}
-  if(typeof b.ready==='boolean'){if(!b.ready&&r.status!=='waiting')await db.prepare("UPDATE rooms SET status='waiting',host_ready=0,guest_ready=0,session=session+1 WHERE code=?").bind(code).run();else await db.prepare(`UPDATE rooms SET ${ready}=? WHERE code=?`).bind(Number(b.ready),code).run();}
+  const fields=[],values=[];
+  if(b.fighter!==undefined&&b.fighter!==r[own]){fields.push(`${own}=?`);values.push(b.fighter)}
+  if(b.stage!==undefined&&b.stage!==r.stage){fields.push('stage=?');values.push(b.stage)}
+  if(fields.length){if(r.status!=='waiting')fail('Сначала вернитесь в лобби',409);const changed=await db.prepare(`UPDATE rooms SET ${fields.join(',')} WHERE code=? AND status='waiting' AND session=?`).bind(...values,code,r.session).run();if(changed.meta.changes!==1)fail('Бой уже начинается. Вернитесь в комнату для смены настроек.',409);}
+  if(b.lobby===true){
+    if(b.session!==undefined&&b.session!==r.session)return json({room:view(r),seat});
+    if(r.status!=='waiting')await db.prepare("UPDATE rooms SET status='waiting',host_ready=0,guest_ready=0,session=session+1 WHERE code=? AND session=?").bind(code,r.session).run();
+  }else if(typeof b.ready==='boolean'){
+    if(!b.ready&&r.status!=='waiting')await db.prepare(`UPDATE rooms SET status='waiting',${ready}=0,session=session+1 WHERE code=? AND session=?`).bind(code,r.session).run();
+    else await db.prepare(`UPDATE rooms SET ${ready}=? WHERE code=?`).bind(Number(b.ready),code).run();
+  }
   const seed=(crypto.getRandomValues(new Uint32Array(1))[0]&0x7fffffff)||1;await db.prepare("UPDATE rooms SET status='connecting',session=session+1,seed=? WHERE code=? AND status='waiting' AND host_ready=1 AND guest_ready=1 AND guest_hash IS NOT NULL").bind(seed,code).run();r=await db.prepare('SELECT * FROM rooms WHERE code=?').bind(code).first();if(!r)fail('Комната закрыта или срок истёк',404);return json({room:view(r),seat});
  }
  if(req.method==='POST'&&p[1]==='signal'){
