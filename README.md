@@ -2,13 +2,33 @@
 
 Godot 4.7.2 fighting game, based on Shoto Fighter (MIT), with nine custom characters, keyboard and touch controls. The original game license and art/sound credits are retained. Game source: `game/`. Browser assets and UI: `public/`. The root route serves `public/arena.html`.
 
+## Локальный запуск
+
+Требуются Node.js >= 22.13.0 и pnpm 11.25.0. В корне проекта выполните:
+
+```powershell
+pnpm install
+pnpm db:migrate:local
+pnpm dev:lan
+```
+
+Откройте `https://localhost:5173` или `https://<IP компьютера>:5173` с другого устройства в локальной сети. При первом открытии на каждом устройстве подтвердите исключение для локального самоподписанного сертификата. Если политика браузера запрещает исключения, используйте сертификат от доверенного центра, установленного на обоих устройствах.
+
+`dev:lan` создаёт сертификат с адресами сетевых интерфейсов в `.sites-runtime/https` и запускает HTTPS-сервер. Для генерации требуется OpenSSL (в Windows входит в Git for Windows). После смены IP перезапустите команду: сертификат обновится автоматически. Готовая Web-сборка игры находится в `public/play`.
+
+Для разработки на одном компьютере можно использовать `pnpm dev` и `http://localhost:5173`. При доступе через локальный IP нужен HTTPS: Godot Web требует защищённый контекст. Clipboard API также доступен только в защищённом контексте; для HTTP предусмотрено резервное копирование ссылки.
+
+Команда `db:migrate:local` создаёт таблицы комнат и сигналов в локальной D1-базе в `.wrangler/state`. Выполняйте её перед первым запуском и после добавления миграций в `drizzle/`; повторный запуск пропускает уже применённые миграции. Команда работает только с локальной базой.
+
+В режиме разработки онлайн-бой использует WebSocket на том же адресе и порту, что и сайт. Оба устройства подключаются к компьютеру с проектом; прямое WebRTC-соединение между ними не требуется. Сервер проверяет ключ игрока и текущую сессию через API комнат. Перезапуск dev-сервера прерывает активные бои. Этот транспорт работает только с `pnpm dev` / `pnpm dev:lan`; опубликованная сборка использует WebRTC.
+
 ## Online rooms
 
 Create a room, send its six-character code or invitation link, select characters and mark both players ready. The host chooses the arena. Rooms expire after 30 minutes. Random seat keys are hashed in D1 and kept in browser session storage. Only room participants can read signaling messages. Both players use P1 controls on their own device.
 
 D1 room/signaling API: `net/rooms.mjs`, with schema and migrations in `db/` and `drizzle/`. WebRTC signaling and lobby UI: `public/network-core.mjs` and `public/network.mjs`. Reliable ordered input packets travel directly between browsers. `game/globals/net_session.gd` coordinates a 60 Hz lockstep simulation with six frames of buffered input, whole-tree pause on missing input and state digest comparison every 120 frames. Audio randomness is separate from seeded gameplay randomness. Network rematches return both players to the lobby.
 
-Public Google and Cloudflare STUN endpoints are used. No TURN relay is configured, so restrictive mobile or corporate networks may block direct connectivity. The UI reports this limitation. Live two-browser and physical Android QA has not yet been completed in the managed environment. Automated peer/UI tests simulate the network; they are not NAT connectivity tests.
+Hosted builds use public Google and Cloudflare STUN endpoints. No TURN relay is configured, so restrictive mobile or corporate networks may block direct connectivity. Local development instead uses the authenticated WebSocket relay in `net/localRelay.mjs` and `net/relaySessions.mjs`, with the browser transport in `public/networkRelay.mjs`. Two-browser Chrome QA exercises actual Godot input/checksum exchange with WebRTC disabled. Physical Android and cross-device QA still require verification on the target network.
 
 ## Build
 

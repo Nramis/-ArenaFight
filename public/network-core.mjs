@@ -1,5 +1,6 @@
 export const PROTOCOL='arena-net-5';
 export class PeerLink{
+ get isOpen(){return !this.closed&&this.channel?.readyState==='open'}
  constructor({seat,signal,onData,onOpen,onFailure,RTCPeerConnectionClass=globalThis.RTCPeerConnection}){
   Object.assign(this,{seat,signal,onData,onOpen,onFailure,pendingIce:[],closed:false});
   this.pc=new RTCPeerConnectionClass({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}]});
