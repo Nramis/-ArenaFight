@@ -11,18 +11,16 @@ func _ready() -> void:
     fighter = get_parent().get_parent()
     for tier in ["prosperous", "struggling", "bankrupt"]:
         var data: Dictionary = RuslanAtlas.DATA[tier]
-        var cell := Vector2(data.cell[0], data.cell[1])
-        var anchor := Vector2(data.anchor[0], data.anchor[1])
         var frames: Array = []
         var texture_size := Vector2(ATLASES[atlas_frames.size()].get_size())
         for pose in 48:
             var points := PackedVector2Array()
             var uv := PackedVector2Array()
-            var origin := Vector2(pose % 8, int(pose / 8)) * cell
+            var anchor := Vector2(data.frames[pose].anchor[0], data.frames[pose].anchor[1])
             for pair in data.frames[pose].outline:
                 var pixel := Vector2(pair[0], pair[1])
                 points.append((pixel - anchor) * float(data.scale))
-                uv.append((origin + pixel) / texture_size)
+                uv.append(pixel / texture_size)
             frames.append({"points": points, "uv": uv})
         atlas_frames.append(frames)
 
