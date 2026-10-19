@@ -144,7 +144,7 @@ function launch() {
     $('modeLabel').textContent = roster[$('fighter1').value].name + ' × ' + roster[$('fighter2').value].name;
     document.querySelector('.live').lastChild.textContent = stageNames[$('arenaStage').value].toUpperCase();
     document.body.classList.add('arena-started');
-    const query = new URLSearchParams({ v: '21', quickstart: '1', touch: String(Number(touchEnabled)), stage: $('arenaStage').value, sound: String(Number(audioEnabled)), volume: String(audioVolume), mode, difficulty: $('difficulty').value, p1: $('fighter1').value, p2: $('fighter2').value });
+    const query = new URLSearchParams({ v: '22', quickstart: '1', touch: String(Number(touchEnabled)), stage: $('arenaStage').value, sound: String(Number(audioEnabled)), volume: String(audioVolume), mode, difficulty: $('difficulty').value, p1: $('fighter1').value, p2: $('fighter2').value });
     $('game').src = 'play/game.html?' + query;
     $('game').focus();
     notifyNavigation();
@@ -242,7 +242,7 @@ window.ArenaOnlineHooks = {
         $('gate').hidden = true;
         $('modeLabel').textContent = 'ОНЛАЙН · ТЫ ИГРОК ' + (seat + 1);
         document.body.classList.add('arena-started');
-        const query = new URLSearchParams({ v: '21', quickstart: '1', net: '1', seat: String(seat), seed: String(config.seed), run: config.run, mode: '2p', touch: String(Number(touchEnabled)), stage: config.stage, sound: String(Number(audioEnabled)), volume: String(audioVolume), p1: config.p1, p2: config.p2 });
+        const query = new URLSearchParams({ v: '22', quickstart: '1', net: '1', seat: String(seat), seed: String(config.seed), run: config.run, mode: '2p', touch: String(Number(touchEnabled)), stage: config.stage, sound: String(Number(audioEnabled)), volume: String(audioVolume), p1: config.p1, p2: config.p2 });
         $('game').src = 'play/game.html?' + query;
         $('game').focus();
         notifyNavigation();

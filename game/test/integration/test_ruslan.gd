@@ -174,3 +174,19 @@ func test_finance_simulation_is_in_network_digest() -> void:
     arena.p1.abilities.ruslan.dark_frames = 240
     assert_str(NetSession.state_digest()).is_not_equal(before)
     NetSession.arena = null
+
+func test_replaying_the_same_seed_preserves_dice_and_projectile_state() -> void:
+    var snapshots: Array[String] = []
+    for replay in 2:
+        var arena := _arena()
+        seed(23817)
+        arena.p1.abilities.activate(2)
+        for frame in 80:
+            arena.p1.abilities.tick()
+        arena.p1.abilities.activate(0)
+        for frame in 55:
+            arena.p1.abilities.tick()
+        NetSession.arena = arena
+        snapshots.append(NetSession.state_digest())
+    NetSession.arena = null
+    assert_str(snapshots[0]).is_equal(snapshots[1])
