@@ -10,6 +10,7 @@ const PORTRAITS = {
     "bigboss":[preload("res://assets/newcomers.png"),Rect2(50,542,270,300)],
     "azat":[preload("res://assets/azat.png"),Rect2(0,0,384,500)],
     "polina":[preload("res://assets/motion/polina.png"),Rect2(0,0,384,500)],
+    "ruslan":[preload("res://assets/ruslan/prosperous.png"),Rect2(0,0,182,182)],
     "yusup":[preload("res://assets/yusup.png"),Rect2(0,0,313.5,313.5)]
 }
 const DESCRIPTIONS = {
@@ -22,6 +23,7 @@ const DESCRIPTIONS = {
     "bigboss":"Пистолет · Автомат · Толпа с Тик Током",
     "azat":"Только нытьё · Жалобы · Никаких атак и урона",
     "polina":"Телепорт с ударом · Дождь · Случайный жест / ступор 3 с",
+    "ruslan":"Комбо лечит · Плов · Темнота / 4 с · Кубики: риск −150 HP",
     "yusup":"А забей · выносливость 0 / 2 с · Холодно / 3 с · Плавунец / 5 с"
 }
 var selected := ["rafael","nikita"]

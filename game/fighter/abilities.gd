@@ -11,6 +11,7 @@ const COOLDOWNS_N := [420, 660, 480]
 const EFFECT = preload("res://fx/ability_effect.gd")
 var fighter: Fighter
 var yusup: YusupAbilities
+var ruslan: RuslanAbilities
 var conversation_source: Fighter
 var cooldowns: Array[int] = [0, 0, 0]
 var energy_frames := 0
@@ -47,6 +48,7 @@ const ROSTER_EFFECT = preload("res://fx/roster_effect.gd")
 func _init(owner_fighter: Fighter) -> void:
     fighter = owner_fighter
     yusup = YusupAbilities.new(owner_fighter)
+    ruslan = RuslanAbilities.new(owner_fighter)
 
 func is_rafael() -> bool:
     return fighter.roster_name() == "rafael"
@@ -68,6 +70,7 @@ func speed_multiplier() -> float:
 
 func tick() -> void:
     yusup.tick()
+    ruslan.tick()
     _tick_phone()
     _tick_teleport()
     if stun_frames > 0:
@@ -134,7 +137,7 @@ func tick() -> void:
             _ai_timer = 90 if fighter.input_source.difficulty == "hard" else 155
             var distance: float = absf(fighter.position.x - fighter.opponent.position.x)
             var slot := 0
-            if fighter.roster_name() in ["vladislav","mavrin","ramis","ilgiz","bigboss","azat","polina","yusup"]:
+            if fighter.roster_name() in ["vladislav","mavrin","ramis","ilgiz","bigboss","azat","polina","yusup","ruslan"]:
                 var available: Array[int] = []
                 for i in 3:
                     if cooldowns[i] == 0:
@@ -175,7 +178,9 @@ func activate(slot: int) -> bool:
     fighter.vel = Vector2.ZERO
     fighter.current_move = null
     fighter.state_machine.force_state("Idle")
-    if fighter.roster_name() == "yusup":
+    if fighter.roster_name() == "ruslan":
+        ruslan.activate(slot)
+    elif fighter.roster_name() == "yusup":
         yusup.activate(slot)
     elif fighter.roster_name() == "polina":
         pose_kind = ["swim_teleport","rain_prayer","random_gesture"][slot]
@@ -366,6 +371,7 @@ func _spawn(kind: String, variant: int = 0) -> void:
 
 func interrupt_cast() -> void:
     yusup.interrupt()
+    ruslan.interrupt()
     phone_frames = 0
     stun_frames = 0
     if teleport_frames > 0:
@@ -388,6 +394,7 @@ func freeze() -> void:
 
 func reset() -> void:
     yusup.reset()
+    ruslan.reset()
     conversation_source = null
     phone_frames = 0
     phone_roll = -1
@@ -421,6 +428,15 @@ func reset() -> void:
     _apply_speed()
 
 func status_text() -> String:
+    if fighter.roster_name() == "ruslan":
+        var wallet := "КАПИТАЛ %d ₽" % fighter.health
+        if ruslan.notice_frames > 0:
+            return ruslan.notice
+        if ruslan.dark_frames > 0:
+            return wallet + " · ТЕМНОТА %.1f" % (ruslan.dark_frames / 60.0)
+        if pose_frames > 0:
+            return effect_name
+        return wallet
     if yusup.story_frames > 0:
         return yusup.speech()
     if stun_frames > 0:

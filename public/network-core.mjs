@@ -1,4 +1,4 @@
-export const PROTOCOL='arena-net-6';
+export const PROTOCOL='arena-net-7';
 export class PeerLink{
  get isOpen(){return !this.closed&&this.channel?.readyState==='open'}
  constructor({seat,signal,onData,onOpen,onFailure,RTCPeerConnectionClass=globalThis.RTCPeerConnection}){

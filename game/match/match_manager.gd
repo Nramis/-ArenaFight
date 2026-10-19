@@ -75,6 +75,10 @@ func _ready() -> void:
     presentation.name = "Presentation"
     presentation.set_script(preload("res://ui/fight_presentation.gd"))
     add_child(presentation)
+    var combo_tips := CanvasLayer.new()
+    combo_tips.name = "ComboTips"
+    combo_tips.set_script(preload("res://ui/combo_tips.gd"))
+    add_child(combo_tips)
     if NetSession.enabled:
         NetSession.begin(self)
 

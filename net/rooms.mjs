@@ -1,4 +1,4 @@
-const fighters=new Set(['rafael','nikita','vladislav','mavrin','ramis','ilgiz','bigboss','azat','polina','yusup']),stages=new Set(['rooftop','taneko','office']);
+const fighters=new Set(['rafael','nikita','vladislav','mavrin','ramis','ilgiz','bigboss','azat','polina','yusup','ruslan']),stages=new Set(['rooftop','taneko','office']);
 const name=v=>String(v||'Игрок').replace(/[<>\x00-\x1f]/g,'').trim().slice(0,24)||'Игрок';
 const hash=async v=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v))),x=>x.toString(16).padStart(2,'0')).join('');
 const json=(v,status=200)=>Response.json(v,{status,headers:{'Cache-Control':'no-store'}});

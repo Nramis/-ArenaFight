@@ -462,6 +462,8 @@ func try_start_attack(stance: String) -> bool:
                     attack_buffer_frames = 0
                     return false
                 var move: MoveData = moves[key].duplicate()
+                if roster_name() == "ruslan":
+                    abilities.ruslan.prepare_normal(move)
                 move.damage = int(round(move.damage*result.damage))
                 move.recovery += int(result.recovery)
                 if stance == "j":
@@ -609,7 +611,12 @@ func receive_hit(m: MoveData, attacker_facing: int) -> void:
     combo_damage += dmg
     combo_display_frames = 90
     last_hit_blocked = false
+    var actual_damage := mini(health, dmg)
     health = max(health - dmg, 0)
+    if abilities != null:
+        abilities.ruslan.took_damage(actual_damage)
+    if is_instance_valid(opponent) and opponent.roster_name() == "ruslan":
+        opponent.abilities.ruslan.confirmed_hit(m, actual_damage, combo_count, combo_damage)
     var finisher := m.combo_finisher and combo_count >= 3
     var push := m.pushback if not m.combo_finisher or finisher else minf(m.pushback,110.0)
     vel = Vector2(attacker_facing * (push + maxf(0,combo_count-2)*18.0), 0.0)
@@ -631,6 +638,8 @@ func receive_block(m: MoveData, attacker_facing: int) -> void:
     last_damage = chip
     last_hit_blocked = true
     health = max(health - chip, 0)
+    if abilities != null:
+        abilities.ruslan.took_damage(chip)
     blockstun_frames = m.blockstun
     vel = Vector2(attacker_facing * minf(m.pushback,140.0) * 0.5, 0.0)
     state_machine.transition_to("Blockstun")
@@ -651,6 +660,8 @@ func get_thrown(thrower_facing: int) -> void:
     if abilities != null:
         abilities.interrupt_cast()
     health = max(health - THROW_DAMAGE, 0)
+    if abilities != null:
+        abilities.ruslan.took_damage(THROW_DAMAGE)
     knockdown_frames = KNOCKDOWN_FRAMES
     vel = Vector2(thrower_facing * 120.0, 0.0)
     state_machine.transition_to("Knockdown")
