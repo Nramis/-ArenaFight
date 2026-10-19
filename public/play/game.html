@@ -97,6 +97,10 @@ body {
 const originalFetch = window.fetch.bind(window);
 window.fetch = async function(input, options) {
  const url = typeof input === 'string' ? input : (input instanceof URL ? input.href : input.url);
+ if (url && /game\.pck(?:\?.*)?$/.test(url)) {
+  const {fetchGamePack} = await import('./pack-loader.mjs?v=1');
+  return fetchGamePack(url, options, originalFetch);
+ }
  if (url && /game\.wasm(?:\?.*)?$/.test(url)) {
   const response = await originalFetch(url.replace('game.wasm','game.wasm.gz'), options);
   if (!response.ok) throw new Error('Не удалось загрузить игру: '+response.status);

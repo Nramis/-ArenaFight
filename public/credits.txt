@@ -51,3 +51,5 @@ Toasty cameo: short original Mortal Kombat / Dan Forden / Midway voice excerpt, 
 Salahov assist: original eight-pose illustrated atlas based on the user-supplied photo reference.
 
 Юсуп: оригинальный атлас ImageGen по фотографии пользователя. Реплики «Там, короче…» и «А забей!» синтезированы Microsoft Pavel (Windows SAPI); голос человека с фотографии не клонировался.
+
+Руслан: три оригинальных атласа ImageGen по предоставленной пользователем фотографии; 48 поз × 3 состояния одежды. Логика, эффекты монет, риса, купюр и кубиков выполнены для этого проекта.

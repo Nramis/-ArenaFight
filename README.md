@@ -10,7 +10,7 @@ Q / ПЛОВ: подготовка 30 кадров, затем три летящ
 
 Таймеры, результаты кубиков, история подтверждённых ударов и состояние снарядов включены в сетевую диагностику. Протокол 7 отклоняет несовместимые клиенты. Тесты Руслана: `res://test/integration/test_ruslan.gd`. Атласы и промпты описаны в `game/assets/ruslan/ART.md`.
 
-Godot 4.7.2 fighting game, based on Shoto Fighter (MIT), with ten custom characters, keyboard and touch controls. The original game license and art/sound credits are retained. Game source: `game/`. Browser assets and UI: `public/`. The root route serves `public/arena.html`.
+Godot 4.7.2 fighting game, based on Shoto Fighter (MIT), with eleven custom characters, keyboard and touch controls. The original game license and art/sound credits are retained. Game source: `game/`. Browser assets and UI: `public/`. The root route serves `public/arena.html`.
 
 ## Локальный запуск
 
@@ -24,7 +24,7 @@ pnpm dev:lan
 
 Откройте `https://localhost:5173` или `https://<IP компьютера>:5173` с другого устройства в локальной сети. При первом открытии на каждом устройстве подтвердите исключение для локального самоподписанного сертификата. Если политика браузера запрещает исключения, используйте сертификат от доверенного центра, установленного на обоих устройствах.
 
-`dev:lan` создаёт сертификат с адресами сетевых интерфейсов в `.sites-runtime/https` и запускает HTTPS-сервер. Для генерации требуется OpenSSL (в Windows входит в Git for Windows). После смены IP перезапустите команду: сертификат обновится автоматически. Готовая Web-сборка игры находится в `public/play`.
+`dev:lan` создаёт сертификат с адресами сетевых интерфейсов в `.sites-runtime/https` и запускает HTTPS-сервер. Для генерации требуется OpenSSL (в Windows входит в Git for Windows). После смены IP перезапустите команду: сертификат обновится автоматически. Готовая Web-сборка игры находится в `public/play`. Игровой пакет хранится в Git как части по 2 МиБ и манифест `pack.json`; браузер проверяет SHA-256 каждой части и собирает пакет при загрузке. После отдельного `--export-pack` выполните `node scripts/package-game.mjs`. Полный `game.pck` — локальный промежуточный файл.
 
 Для разработки на одном компьютере можно использовать `pnpm dev` и `http://localhost:5173`. При доступе через локальный IP нужен HTTPS: Godot Web требует защищённый контекст. Clipboard API также доступен только в защищённом контексте; для HTTP предусмотрено резервное копирование ссылки.
 

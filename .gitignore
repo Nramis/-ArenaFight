@@ -59,3 +59,6 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+# Godot exports this local source pack; the browser loads tracked verified parts.
+/public/play/game.pck
