@@ -1,0 +1,66 @@
+{
+  "size": 24057412,
+  "sha256": "9042b6abebecaf70ab044d7c6d7127d0a63e79d1c1f07445b8609a6425316515",
+  "parts": [
+    {
+      "name": "game-data-9042b6abebec-00.bin",
+      "size": 2097152,
+      "sha256": "cbc116eedad05d451bd951e9ec38936fde74476e179d1aed5c12661ac19f8d9e"
+    },
+    {
+      "name": "game-data-9042b6abebec-01.bin",
+      "size": 2097152,
+      "sha256": "f55de98a6ff6090bc7e22339b14dbf820b662b9528ea807096bc7978085f939f"
+    },
+    {
+      "name": "game-data-9042b6abebec-02.bin",
+      "size": 2097152,
+      "sha256": "db6c3d5ac85ceddf80b4d605ca73195f8b08d7862dd8c826154cf05c2f9b8d24"
+    },
+    {
+      "name": "game-data-9042b6abebec-03.bin",
+      "size": 2097152,
+      "sha256": "9af587d1abf438fc2a3964f95f75c80a72e81a777956979f0acece239884a3a9"
+    },
+    {
+      "name": "game-data-9042b6abebec-04.bin",
+      "size": 2097152,
+      "sha256": "439efec6b427a728d2791f4de3fd5bdf2b2e55cf72f8a2641a6cfa5330da1e57"
+    },
+    {
+      "name": "game-data-9042b6abebec-05.bin",
+      "size": 2097152,
+      "sha256": "cdde9f0b5aeb1f6f3d70e3efb70475f827e2e044b06413e08747961fcd0bbff8"
+    },
+    {
+      "name": "game-data-9042b6abebec-06.bin",
+      "size": 2097152,
+      "sha256": "634eb6128d11c3ae01d2eefa8b920b00d6a628abab0d59637d39e4eafff82ce1"
+    },
+    {
+      "name": "game-data-9042b6abebec-07.bin",
+      "size": 2097152,
+      "sha256": "f9a141f3235ff8121185b977e0ac9e46b32f73102f4becb76eb2e5b22cb2fd45"
+    },
+    {
+      "name": "game-data-9042b6abebec-08.bin",
+      "size": 2097152,
+      "sha256": "a31dfb114e26a40692c50c2425660ea897b9a3907bb9fff4860db06c7bc12995"
+    },
+    {
+      "name": "game-data-9042b6abebec-09.bin",
+      "size": 2097152,
+      "sha256": "4f87b9fe0e3f1a6c33aa44045586c766d89802ec87da40ee5d3044b4438d3ed8"
+    },
+    {
+      "name": "game-data-9042b6abebec-10.bin",
+      "size": 2097152,
+      "sha256": "9150bfd534e70f41e4c896a86a9978b27ee45fc2b073642f782667bb44aaf29f"
+    },
+    {
+      "name": "game-data-9042b6abebec-11.bin",
+      "size": 988740,
+      "sha256": "085e03c07a3ceebe33a297d772b5fd05ffa355efa5b865da2222c2de136b2059"
+    }
+  ]
+}

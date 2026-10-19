@@ -12,6 +12,14 @@ var f: Fighter
 
 func _ready() -> void:
     f = get_parent()
+    if f.roster_name() == "ruslan":
+        var ruslan := Node2D.new()
+        ruslan.set_script(preload("res://fighter/ruslan_art.gd"))
+        add_child(ruslan)
+        var finance_fx := Node2D.new()
+        finance_fx.set_script(preload("res://fx/ruslan_fx.gd"))
+        f.call_deferred("add_child", finance_fx)
+        return
     var locomotion := LocomotionArt.new()
     f.call_deferred("add_child",locomotion)
     if f.roster_name() == "yusup":

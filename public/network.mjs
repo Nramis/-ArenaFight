@@ -1,4 +1,4 @@
-import {PeerLink,PROTOCOL} from './network-core.mjs?v=7';
+import {PeerLink,PROTOCOL} from './network-core.mjs?v=8';
 import {copyInvitation} from './networkBrowser.mjs?v=1';
 import {RelayLink} from './networkRelay.mjs?v=3';
 const $=id=>document.getElementById(id),hooks=window.ArenaOnlineHooks,roster=hooks.roster;

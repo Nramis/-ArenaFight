@@ -7,6 +7,7 @@ let audioEnabled = true;
 let audioVolume = 0.8;
 const stageNames = { rooftop: 'Крыша', taneko: 'ТАНЕКО', office: 'Татнефть' };
 const roster = {
+ruslan:{name:"Руслан",tag:"КАПИТАЛ / КОМБО / РИСК",abilities:["Плов на вынос · готовит и бросает три порции","Чёрный день · оба игрока ничего не видят 4 с","Ва-банк · дубль: денежный дождь; иначе −150 HP себе"]},
 yusup:{name:"Юсуп",tag:"РАЗГОВОР / ЖАРА / ПЛАВАНИЕ",abilities:["А забей · разговор, затем выносливость врага 0 на 2 с","Мне холодно! · пульт, жара и горение на 3 с","Плавунец · купальник и мельница руками на 5 с"]},
 polina:{name:"Полина",tag:"ТЕЛЕПОРТ / ДОЖДЬ / ЖЕСТЫ",abilities:["Нырок · исчезает и ударяет рядом с противником","Просьба · дождь из сигарет и вейпов","Случайный жест · ступор на 3 с, до первого попадания"]},
 azat:{name:"Азат",tag:"ТОЛЬКО НЫТЬЁ / НОЛЬ УРОНА",abilities:["Ну почему я? · разводит руками","Я не буду! · жалуется","Всё не так! · драматично ноет"]},
@@ -143,7 +144,7 @@ function launch() {
     $('modeLabel').textContent = roster[$('fighter1').value].name + ' × ' + roster[$('fighter2').value].name;
     document.querySelector('.live').lastChild.textContent = stageNames[$('arenaStage').value].toUpperCase();
     document.body.classList.add('arena-started');
-    const query = new URLSearchParams({ v: '21', quickstart: '1', touch: String(Number(touchEnabled)), stage: $('arenaStage').value, sound: String(Number(audioEnabled)), volume: String(audioVolume), mode, difficulty: $('difficulty').value, p1: $('fighter1').value, p2: $('fighter2').value });
+    const query = new URLSearchParams({ v: '23', quickstart: '1', touch: String(Number(touchEnabled)), stage: $('arenaStage').value, sound: String(Number(audioEnabled)), volume: String(audioVolume), mode, difficulty: $('difficulty').value, p1: $('fighter1').value, p2: $('fighter2').value });
     $('game').src = 'play/game.html?' + query;
     $('game').focus();
     notifyNavigation();
@@ -241,7 +242,7 @@ window.ArenaOnlineHooks = {
         $('gate').hidden = true;
         $('modeLabel').textContent = 'ОНЛАЙН · ТЫ ИГРОК ' + (seat + 1);
         document.body.classList.add('arena-started');
-        const query = new URLSearchParams({ v: '21', quickstart: '1', net: '1', seat: String(seat), seed: String(config.seed), run: config.run, mode: '2p', touch: String(Number(touchEnabled)), stage: config.stage, sound: String(Number(audioEnabled)), volume: String(audioVolume), p1: config.p1, p2: config.p2 });
+        const query = new URLSearchParams({ v: '23', quickstart: '1', net: '1', seat: String(seat), seed: String(config.seed), run: config.run, mode: '2p', touch: String(Number(touchEnabled)), stage: config.stage, sound: String(Number(audioEnabled)), volume: String(audioVolume), p1: config.p1, p2: config.p2 });
         $('game').src = 'play/game.html?' + query;
         $('game').focus();
         notifyNavigation();
