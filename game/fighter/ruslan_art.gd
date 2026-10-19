@@ -5,9 +5,26 @@ var fighter: Fighter
 var clock := 0.0
 var gait := 0.0
 var lean := 0.0
+var atlas_frames: Array = []
 
 func _ready() -> void:
     fighter = get_parent().get_parent()
+    for tier in ["prosperous", "struggling", "bankrupt"]:
+        var data: Dictionary = RuslanAtlas.DATA[tier]
+        var cell := Vector2(data.cell[0], data.cell[1])
+        var anchor := Vector2(data.anchor[0], data.anchor[1])
+        var frames: Array = []
+        var texture_size := Vector2(ATLASES[atlas_frames.size()].get_size())
+        for pose in 48:
+            var points := PackedVector2Array()
+            var uv := PackedVector2Array()
+            var origin := Vector2(pose % 8, int(pose / 8)) * cell
+            for pair in data.frames[pose].outline:
+                var pixel := Vector2(pair[0], pair[1])
+                points.append((pixel - anchor) * float(data.scale))
+                uv.append((origin + pixel) / texture_size)
+            frames.append({"points": points, "uv": uv})
+        atlas_frames.append(frames)
 
 func _process(delta: float) -> void:
     if fighter.abilities == null:
@@ -92,7 +109,6 @@ func _draw() -> void:
     draw_circle(Vector2.ZERO, 22 * growth, Color(0, 0, 0, 0.25))
     draw_set_transform(Vector2(0, bob), rotation_amount * fighter.facing(), Vector2(fighter.facing() * growth, growth) * stretch)
     var texture: Texture2D = ATLASES[ability.wealth_tier()]
-    var cell := Vector2(texture.get_size()) / Vector2(8, 6)
-    var source := Rect2(Vector2(pose % 8, int(pose / 8)) * cell, cell)
-    draw_texture_rect_region(texture, Rect2(-61, -117, 122, 122), source, tint)
+    var frame: Dictionary = atlas_frames[ability.wealth_tier()][pose]
+    draw_colored_polygon(frame.points, tint, frame.uv, texture)
     draw_set_transform(Vector2.ZERO)
