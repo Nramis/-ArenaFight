@@ -11,8 +11,7 @@
 
 КАК ПЕРЕНЕСТИ В СУЩЕСТВУЮЩИЙ GITHUB-РЕПОЗИТОРИЙ
 1. Клонируйте https://github.com/Nramis/-ArenaFight.git на свой компьютер.
-2. В папке репозитория переключитесь на существующую ветку:
-   git switch feature/rinat-skins-uppercut
+2. В папке репозитория создайте ветку: git switch -c feat/rinat-skins-export
 3. Скопируйте СОДЕРЖИМОЕ папки ArenaFight-Rinat из архива в корень
    репозитория. Скрытые файлы, включая .gitignore и .openai, тоже нужны.
    Не удаляйте и не заменяйте существующую папку .git репозитория.
@@ -22,7 +21,7 @@
    устаревшие файлы, поэтому не считайте его автоматическим слиянием.
 5. git add -A
 6. git commit -m "Add Rinat and fighter skins from published version 2"
-7. git push -u origin feature/rinat-skins-uppercut
+7. git push -u origin feat/rinat-skins-export
 8. Откройте Pull Request в GitHub и проверьте изменения перед слиянием.
 
 Запуск и сборка описаны в README.md. Для редактирования боевой части
