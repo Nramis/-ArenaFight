@@ -10,7 +10,8 @@ const PORTRAITS = {
     "bigboss":[preload("res://assets/newcomers.png"),Rect2(50,542,270,300)],
     "azat":[preload("res://assets/azat.png"),Rect2(0,0,384,500)],
     "polina":[preload("res://assets/motion/polina.png"),Rect2(0,0,384,500)],
-    "yusup":[preload("res://assets/yusup.png"),Rect2(0,0,313.5,313.5)]
+    "yusup":[preload("res://assets/yusup.png"),Rect2(0,0,313.5,313.5)],
+    "rinat":[preload("res://assets/rinat/rinat-base.png"),Rect2(15,32,172,270)]
 }
 const DESCRIPTIONS = {
     "rafael":"Энергетик · Протеин · Волна изо рта",
@@ -22,7 +23,8 @@ const DESCRIPTIONS = {
     "bigboss":"Пистолет · Автомат · Толпа с Тик Током",
     "azat":"Только нытьё · Жалобы · Никаких атак и урона",
     "polina":"Телепорт с ударом · Дождь · Случайный жест / ступор 3 с",
-    "yusup":"А забей · выносливость 0 / 2 с · Холодно / 3 с · Плавунец / 5 с"
+    "yusup":"А забей · выносливость 0 / 2 с · Холодно / 3 с · Плавунец / 5 с",
+    "rinat":"Цепи · Эликсир +25% / 15 с · Дым · ↓ + рука: апперкот"
 }
 var selected := ["rafael","nikita"]
 var active_slot := 0
@@ -32,9 +34,12 @@ var mode: OptionButton
 var difficulty: OptionButton
 var detail: Label
 var stage_select: OptionButton
+var skin_select: OptionButton
+var selected_skins := ["default", "default"]
 
 func _ready() -> void:
     selected = [Roster.valid(GameConfig.p1_character),Roster.valid(GameConfig.p2_character)]
+    selected_skins = [Skins.valid(selected[0],GameConfig.p1_skin),Skins.valid(selected[1],GameConfig.p2_skin)]
     var bg := ColorRect.new()
     bg.color = Color("101828")
     bg.size = Vector2(384,216)
@@ -74,12 +79,18 @@ func _ready() -> void:
     detail = _label("",Vector2(12,147),Vector2(360,14),8)
     stage_select = OptionButton.new()
     stage_select.position = Vector2(12,161)
-    stage_select.size = Vector2(360,14)
+    stage_select.size = Vector2(180,14)
     stage_select.add_theme_font_size_override("font_size",8)
     for id in Stages.IDS:
         stage_select.add_item(Stages.NAMES[id])
     stage_select.select(Stages.IDS.find(GameConfig.stage_id))
     add_child(stage_select)
+    skin_select = OptionButton.new()
+    skin_select.position = Vector2(200,161)
+    skin_select.size = Vector2(172,14)
+    skin_select.add_theme_font_size_override("font_size",8)
+    skin_select.item_selected.connect(_skin_changed)
+    add_child(skin_select)
     mode = OptionButton.new()
     mode.position = Vector2(12,175)
     mode.size = Vector2(108,26)
@@ -131,6 +142,7 @@ func _set_slot(slot: int) -> void:
 
 func _select(id: String) -> void:
     selected[active_slot] = Roster.valid(id)
+    selected_skins[active_slot] = Skins.valid(id,selected_skins[active_slot])
     _refresh()
 
 func _style(color: Color, selected_card: bool) -> StyleBoxFlat:
@@ -141,7 +153,15 @@ func _style(color: Color, selected_card: bool) -> StyleBoxFlat:
     style.set_corner_radius_all(4)
     return style
 
+func _skin_changed(index: int) -> void:
+    selected_skins[active_slot] = Skins.options(selected[active_slot])[index]
+
 func _refresh() -> void:
+    skin_select.clear()
+    for skin in Skins.options(selected[active_slot]):
+        skin_select.add_item("Облик: " + Skins.NAMES[skin])
+    skin_select.select(Skins.options(selected[active_slot]).find(selected_skins[active_slot]))
+    skin_select.disabled = Skins.options(selected[active_slot]).size() == 1
     for i in 2:
         slots[i].text = ("ИГРОК 1: " if i == 0 else "ПРОТИВНИК: ") + Roster.NAMES[selected[i]]
         slots[i].add_theme_stylebox_override("normal",_style(Color("9ee6d2") if i == 0 else Color("ecb18f"),active_slot == i))
@@ -160,6 +180,8 @@ func _start() -> void:
     GameConfig.stage_id = Stages.IDS[stage_select.selected]
     GameConfig.p1_character = selected[0]
     GameConfig.p2_character = selected[1]
+    GameConfig.p1_skin = selected_skins[0]
+    GameConfig.p2_skin = selected_skins[1]
     GameConfig.set_mode(mode.selected == 0,["easy","medium","hard"][difficulty.selected])
     if OS.has_feature("web"):
         var payload := {"type":"arena-selection","p1":selected[0],"p2":selected[1],"mode":"cpu" if mode.selected == 0 else "2p","difficulty":GameConfig.cpu_difficulty,"stage":GameConfig.stage_id}

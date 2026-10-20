@@ -8,6 +8,13 @@
       "when": 1792123626665,
       "tag": "0000_worried_silver_samurai",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792409403712,
+      "tag": "0001_mighty_mesmero",
+      "breakpoints": true
     }
   ]
 }

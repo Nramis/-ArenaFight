@@ -12,7 +12,8 @@ const SPECIAL_NAMES = {
     "bigboss":["ПИСТОЛЕТ","АВТОМАТ","ТОЛПА"],
     "azat":["ПОЧЕМУ Я","НЕ БУДУ","ВСЁ НЕ ТАК"],
     "polina":["НЫРОК","ДОЖДЬ","ЖЕСТ"],
-    "yusup":["А ЗАБЕЙ","ХОЛОДНО!","ПЛАВУНЕЦ"]
+    "yusup":["А ЗАБЕЙ","ХОЛОДНО!","ПЛАВУНЕЦ"],
+    "rinat":["ЦЕПЬ","МАСТЕР","ДЫМ"]
 }
 var enabled := false
 var stick_finger := -1
@@ -131,7 +132,9 @@ func _draw() -> void:
         if special:
             text = SPECIAL_NAMES[fighter.roster_name()][button.slot]
             cd = fighter.abilities.cooldowns[button.slot]
-            if cd > 0:
+            if fighter.roster_name() == "rinat" and button.slot == 1 and fighter.abilities.rinat.master_frames > 0:
+                text = "%.0f +25%%" % ceil(fighter.abilities.rinat.master_frames / 60.0)
+            elif cd > 0:
                 text = "%.1f" % (cd/60.0)
         var pressed: bool = held.has(button.action)
         var heavy: bool = button.action in ["p1_hp","p1_hk"]

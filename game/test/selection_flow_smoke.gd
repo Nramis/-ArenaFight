@@ -8,7 +8,7 @@ func run_check() -> void:
     var selection = load("res://ui/main_menu.tscn").instantiate()
     root.add_child(selection)
     current_scene = selection
-    assert(selection.cards.size() == 10,"All ten cards are present")
+    assert(selection.cards.size() == Roster.IDS.size(),"All roster cards are present")
     selection._set_slot(0)
     selection._select("polina")
     selection._set_slot(1)

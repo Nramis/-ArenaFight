@@ -131,6 +131,7 @@ func state_digest() -> String:
     for f: Fighter in [arena.p1,arena.p2]:
         data.append([f.health,roundi(f.position.x*1000),roundi(f.position.y*1000),roundi(f.vel.x*1000),roundi(f.vel.y*1000),str(f.state_machine.current_state.name),f.state_machine.current_state.state_frame,f.abilities.cooldowns,f.abilities.freeze_frames,f.abilities.stun_frames,f.abilities.burn_frames,f.abilities.pose_frames,f.invuln_frames,f.knockdown_frames,f.hitstun_frames,f.combo_count,f.combo_damage,f.rhythm.stamina,f.abilities.phone_frames,f.abilities.phone_roll])
         data.append([f.rhythm.depleted_frames, f.abilities.yusup.story_frames, f.abilities.yusup.remote_frames, f.abilities.yusup.heat_frames, f.abilities.yusup.swim_frames, f.abilities.yusup.swim_hit_timer, f.abilities.conversation_source.team if is_instance_valid(f.abilities.conversation_source) else -1])
+        data.append([f.skin_id, f.abilities.rinat.digest(), f.abilities.slow_frames, f.abilities.slow_strength, f.abilities.cast_frames, f.abilities.pose_frames])
     for effect in arena.get_tree().get_nodes_in_group("ability_effect"):
         if effect is SalahovAssist:
             data.append(["salahov",effect.attacker.team,effect.age,effect.strikes,roundi(effect.position.x*1000)])

@@ -8,11 +8,11 @@ func after_test() -> void:
     GameConfig.p2_is_cpu = false
     GameConfig.cpu_difficulty = "medium"
 
-func test_menu_scene_has_ten_fighters_and_mode_controls() -> void:
+func test_menu_scene_has_all_fighters_and_mode_controls() -> void:
     var menu := MENU.instantiate()
     add_child(menu)
     auto_free(menu)
-    assert_int(menu.cards.size()).is_equal(10)
+    assert_int(menu.cards.size()).is_equal(Roster.IDS.size())
     assert_int(menu.mode.item_count).is_equal(2)
     assert_int(menu.difficulty.item_count).is_equal(3)
     menu._set_slot(0)

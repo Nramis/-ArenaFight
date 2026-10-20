@@ -1,3 +1,4 @@
+import {skinOptions,validSkin,skinNames,portraitUrl} from './skins.mjs?v=1';
 const $ = id => document.getElementById(id);
 let mode = 'cpu';
 let started = false;
@@ -5,8 +6,21 @@ let pickerSlot = 0;
 let touchEnabled = navigator.maxTouchPoints > 0 && matchMedia('(pointer:coarse)').matches;
 let audioEnabled = true;
 let audioVolume = 0.8;
+let skinChoices = [{},{}];
+try { const saved = JSON.parse(localStorage.getItem('arena-skins') || 'null'); if(Array.isArray(saved) && saved.length === 2 && saved.every(v=>v && typeof v === 'object' && !Array.isArray(v))) skinChoices = saved; } catch {}
+function chosenSkin(slot) { const id=$('fighter'+(slot+1)).value; return validSkin(id,skinChoices[slot][id]); }
+function refreshSkin() {
+    const id=$('fighter'+(pickerSlot+1)).value, select=$('pickSkin');
+    select.replaceChildren(...skinOptions(id).map(value=>{const option=document.createElement('option');option.value=value;option.textContent=skinNames[value];return option}));
+    select.value=chosenSkin(pickerSlot);
+    $('skinChoice').hidden=skinOptions(id).length<2;
+    const portrait=$('skinPortrait');portrait.style.backgroundImage='url('+portraitUrl(id,select.value)+')';
+    portrait.style.backgroundSize=id==='rinat'||select.value==='paquito'?'800% 400%':'400% 200%';
+}
+
 const stageNames = { rooftop: 'Крыша', taneko: 'ТАНЕКО', office: 'Татнефть' };
 const roster = {
+rinat:{name:"Ринат",tag:"ЦЕПИ / ПЬЯНЫЙ МАСТЕР",abilities:["Ты Орлов? Иди сюда! · цепь, притягивание и удержание 1 с · откат 8 с","Эликсир · пьяный мастер 15 с, урон +25%, песни замедляют врага · откат 20 с после режима","Огромный вейп · белый дым на арене, небольшой урон · откат 3 с"]},
 yusup:{name:"Юсуп",tag:"РАЗГОВОР / ЖАРА / ПЛАВАНИЕ",abilities:["А забей · разговор, затем выносливость врага 0 на 2 с","Мне холодно! · пульт, жара и горение на 3 с","Плавунец · купальник и мельница руками на 5 с"]},
 polina:{name:"Полина",tag:"ТЕЛЕПОРТ / ДОЖДЬ / ЖЕСТЫ",abilities:["Нырок · исчезает и ударяет рядом с противником","Просьба · дождь из сигарет и вейпов","Случайный жест · ступор на 3 с, до первого попадания"]},
 azat:{name:"Азат",tag:"ТОЛЬКО НЫТЬЁ / НОЛЬ УРОНА",abilities:["Ну почему я? · разводит руками","Я не буду! · жалуется","Всё не так! · драматично ноет"]},
@@ -18,7 +32,7 @@ bigboss:{name:'Рафаэль Биг Босс',tag:'КОМПАКТНЫЙ / ДА�
 ramis:{name:'Рамис',tag:'МАРИС / СОЛНЕЧНЫЙ РИКОШЕТ',abilities:['Марис · мышцы, четвереньки, скорость / 6 с','Лысина · отражённый солнечный луч','Геморройчики · четыре бегущих существа']},
 mavrin:{name:'Маврин',tag:'СЛОВЕСНЫЕ ВОЛНЫ / ПОЛЁТ',abilities:['Словесные волны · нарастающее замедление','Высокий удар ногой · шпагат','Звонок Салахову · 10% шанс мощной серии из пяти ударов']}
 };
-function updateRoster(){const ids=[$('fighter1').value,$('fighter2').value];$('matchTitle').textContent=roster[ids[0]].name+' × '+roster[ids[1]].name;document.querySelector('.gate .eyebrow').textContent=roster[ids[0]].name+' / '+roster[ids[1]].name;document.querySelectorAll('.controls .panel').forEach((panel,i)=>{const info=roster[ids[i]],keys=i===0?['Q','E','R']:['P','[',']'];const player=panel.querySelector('.player');player.childNodes.forEach(n=>{if(n.nodeType===3)n.textContent=''});player.insertBefore(document.createTextNode(info.name.toUpperCase()+' '),player.querySelector('small'));panel.querySelector('.badge').textContent=info.tag;panel.querySelector('.abilities').innerHTML=info.abilities.map((a,j)=>'<div class="row"><span>'+a+'</span><kbd>'+keys[j]+'</kbd></div>').join('');let extra=panel.querySelector('.flight');if(!extra){extra=document.createElement('div');extra.className='flight';panel.appendChild(extra)}extra.hidden=!["mavrin","azat"].includes(ids[i]);extra.textContent=ids[i]==="azat"?"Все кнопки ударов — нытьё. Атак и урона нет.":(i===0?"F":"H")+" — включить/выключить полёт. Направления — управление в воздухе."})}
+function updateRoster(){const ids=[$('fighter1').value,$('fighter2').value];$('matchTitle').textContent=roster[ids[0]].name+' × '+roster[ids[1]].name;document.querySelector('.gate .eyebrow').textContent=roster[ids[0]].name+' / '+roster[ids[1]].name;document.querySelectorAll('.controls .panel').forEach((panel,i)=>{const info=roster[ids[i]],keys=i===0?['Q','E','R']:['P','[',']'];const player=panel.querySelector('.player');player.childNodes.forEach(n=>{if(n.nodeType===3)n.textContent=''});player.insertBefore(document.createTextNode(info.name.toUpperCase()+' '),player.querySelector('small'));panel.querySelector('.badge').textContent=info.tag;panel.querySelector('.abilities').innerHTML=info.abilities.map((a,j)=>'<div class="row"><span>'+a+'</span><kbd>'+keys[j]+'</kbd></div>').join('');let extra=panel.querySelector('.flight');if(!extra){extra=document.createElement('div');extra.className='flight';panel.appendChild(extra)}extra.hidden=!["mavrin","azat","rinat"].includes(ids[i]);extra.textContent=ids[i]==="rinat"?"Апперкот: вниз + любая рука (S + U / I / O; на телефоне ↓ + Р1 / Р2 / Р3).":ids[i]==="azat"?"Все кнопки ударов — нытьё. Атак и урона нет.":(i===0?"F":"H")+" — включить/выключить полёт. Направления — управление в воздухе."})}
 
 function notifyNavigation() {
     window.dispatchEvent(new CustomEvent('arena:navigation'));
@@ -101,6 +115,7 @@ function setMode(value) {
 }
 
 function refreshPicker() {
+    refreshSkin();
     $('pickerTitle').textContent = 'Настрой бой';
     $('pickP1').textContent = 'ТВОЙ БОЕЦ: ' + roster[$('fighter1').value].name;
     $('pickP2').textContent = (mode === 'cpu' ? 'ПРОТИВНИК ИИ: ' : 'ИГРОК 2: ') + roster[$('fighter2').value].name;
@@ -143,7 +158,7 @@ function launch() {
     $('modeLabel').textContent = roster[$('fighter1').value].name + ' × ' + roster[$('fighter2').value].name;
     document.querySelector('.live').lastChild.textContent = stageNames[$('arenaStage').value].toUpperCase();
     document.body.classList.add('arena-started');
-    const query = new URLSearchParams({ v: '21', quickstart: '1', touch: String(Number(touchEnabled)), stage: $('arenaStage').value, sound: String(Number(audioEnabled)), volume: String(audioVolume), mode, difficulty: $('difficulty').value, p1: $('fighter1').value, p2: $('fighter2').value });
+    const query = new URLSearchParams({ v: 'rinat-1', quickstart: '1', touch: String(Number(touchEnabled)), stage: $('arenaStage').value, sound: String(Number(audioEnabled)), volume: String(audioVolume), mode, difficulty: $('difficulty').value, p1: $('fighter1').value, p2: $('fighter2').value, skin1:chosenSkin(0), skin2:chosenSkin(1) });
     $('game').src = 'play/game.html?' + query;
     $('game').focus();
     notifyNavigation();
@@ -160,6 +175,7 @@ for (const [id, fighter] of Object.entries(roster)) {
     portrait.className = 'roster-portrait';
     portrait.style.backgroundImage = 'url(portraits/' + id + '.png)';
     if (id === 'yusup') portrait.style.backgroundSize = '400% 400%';
+    if (id === 'rinat') portrait.style.backgroundSize = '800% 400%';
     const name = document.createElement('strong');
     name.textContent = fighter.name;
     const abilities = document.createElement('small');
@@ -173,6 +189,7 @@ for (const [id, fighter] of Object.entries(roster)) {
     $('rosterCards').append(card);
 }
 
+$('pickSkin').onchange = () => {const id=$('fighter'+(pickerSlot+1)).value;skinChoices[pickerSlot][id]=validSkin(id,$('pickSkin').value);try{localStorage.setItem('arena-skins',JSON.stringify(skinChoices))}catch{}refreshPicker();};
 $('pickP1').onclick = () => { pickerSlot = 0; refreshPicker(); };
 $('pickP2').onclick = () => { pickerSlot = 1; refreshPicker(); };
 $('pickMode').onchange = () => { setMode($('pickMode').value); refreshPicker(); notifyNavigation(); };
@@ -220,7 +237,7 @@ refreshPicker();
 
 window.ArenaMenu = { home, configure, mount: () => showMenu(false), settings: openPicker, battle: openBattle, get playing() { return started; }, get mode() { return mode; } };
 window.ArenaOnlineHooks = {
-    roster,
+    roster, skinOptions, validSkin, skinNames, portraitUrl,
     lock(active) {
         for (const id of ['cpu', 'two', 'fighter1', 'fighter2', 'arenaStage', 'difficulty', 'restart', 'start', 'touchToggle']) $(id).disabled = active;
     },
@@ -241,7 +258,7 @@ window.ArenaOnlineHooks = {
         $('gate').hidden = true;
         $('modeLabel').textContent = 'ОНЛАЙН · ТЫ ИГРОК ' + (seat + 1);
         document.body.classList.add('arena-started');
-        const query = new URLSearchParams({ v: '21', quickstart: '1', net: '1', seat: String(seat), seed: String(config.seed), run: config.run, mode: '2p', touch: String(Number(touchEnabled)), stage: config.stage, sound: String(Number(audioEnabled)), volume: String(audioVolume), p1: config.p1, p2: config.p2 });
+        const query = new URLSearchParams({ v: 'rinat-1', quickstart: '1', net: '1', seat: String(seat), seed: String(config.seed), run: config.run, mode: '2p', touch: String(Number(touchEnabled)), stage: config.stage, sound: String(Number(audioEnabled)), volume: String(audioVolume), p1: config.p1, p2: config.p2, skin1: validSkin(config.p1,config.skin1), skin2:validSkin(config.p2,config.skin2) });
         $('game').src = 'play/game.html?' + query;
         $('game').focus();
         notifyNavigation();

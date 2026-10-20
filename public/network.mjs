@@ -1,4 +1,5 @@
-import {PeerLink,PROTOCOL} from './network-core.mjs?v=7';
+import {skinOptions,validSkin,skinNames} from './skins.mjs?v=1';
+import {PeerLink,PROTOCOL} from './network-core.mjs?v=8-rinat';
 import {copyInvitation} from './networkBrowser.mjs?v=1';
 import {RelayLink} from './networkRelay.mjs?v=3';
 const $=id=>document.getElementById(id),hooks=window.ArenaOnlineHooks,roster=hooks.roster;
@@ -12,8 +13,9 @@ function lock(value){hooks.lock(value);document.body.classList.toggle('network-a
 function render(){
  $('netEntry').hidden=!!auth;$('netRoom').hidden=!auth;if(!auth||!room)return;
  $('netCode').textContent=room.code;$('netShare').textContent=location.origin+'/?room='+room.code;
- for(const [i,p] of [room.host,room.guest].entries()){const node=$('netSeat'+i);node.classList.toggle('is-ready',!!p?.ready);node.querySelector('strong').textContent=p?p.name+(i===auth.seat?' · ты':''):'Ждём друга…';node.querySelector('small').textContent=p?roster[p.fighter].name+' · '+(p.ready?'ГОТОВ':'Выбирает бойца'):'Отправь другу приглашение';}
+ for(const [i,p] of [room.host,room.guest].entries()){const node=$('netSeat'+i);node.classList.toggle('is-ready',!!p?.ready);node.querySelector('strong').textContent=p?p.name+(i===auth.seat?' · ты':''):'Ждём друга…';node.querySelector('small').textContent=p?roster[p.fighter].name+(p.skin&&p.skin!=='default'?' / '+skinNames[p.skin]:'')+' · '+(p.ready?'ГОТОВ':'Выбирает бойца'):'Отправь другу приглашение';}
  const mine=auth.seat===0?room.host:room.guest;for(const c of $('netFighters').children){c.classList.toggle('chosen',c.dataset.fighter===mine?.fighter);c.disabled=busy||returning||room.status!=='waiting'}
+ const skinSelect=$('netSkin');skinSelect.replaceChildren(...skinOptions(mine?.fighter).map(id=>{const option=document.createElement('option');option.value=id;option.textContent=skinNames[id];return option}));skinSelect.value=validSkin(mine?.fighter,mine?.skin);skinSelect.disabled=busy||returning||room.status!=='waiting'||skinOptions(mine?.fighter).length<2;$('netSkinLabel').hidden=skinOptions(mine?.fighter).length<2;
  $('netStage').value=room.stage;$('netStage').disabled=busy||returning||auth.seat!==0||room.status!=='waiting';$('netReady').textContent=mine?.ready?'ГОТОВ ✓ · ОТМЕНИТЬ':'Я ГОТОВ →';$('netReady').setAttribute('aria-pressed',String(!!mine?.ready));$('netReady').disabled=busy||returning||(room.status!=='waiting'&&!mine?.ready);$('netHud').hidden=!playing;
 }
 function resetPeer(){clearTimeout(timer);link?.close();link=null;signals=[];cursor=0;session=-1;prepared=false;localLoaded=false;remoteLoaded=false;went=false}
@@ -51,8 +53,8 @@ async function poll(force=false){
     }finally{polling=false;render()}
 }
 function receive(d){
- if(d.t==='hello'){if(d.protocol!==PROTOCOL){connectionError('У игроков разные версии. Обновите страницы.');return}if(auth.seat===0&&!prepared){const config={p1:room.host.fighter,p2:room.guest.fighter,stage:room.stage,seed:room.seed,delay:6,protocol:PROTOCOL,run:room.code+':'+room.session+':'+room.seed};link.send({t:'prepare',config});prepare(config)}}
- else if(d.t==='prepare'&&auth.seat===1&&!prepared){const c=d.config;if(c?.protocol!==PROTOCOL||typeof c.run!=='string'||c.run.length>80||!roster[c.p1]||!roster[c.p2]||!['rooftop','taneko','office'].includes(c.stage)||!Number.isInteger(c.seed))return;prepare(c)}
+ if(d.t==='hello'){if(d.protocol!==PROTOCOL){connectionError('У игроков разные версии. Обновите страницы.');return}if(auth.seat===0&&!prepared){const config={p1:room.host.fighter,p2:room.guest.fighter,skin1:validSkin(room.host.fighter,room.host.skin),skin2:validSkin(room.guest.fighter,room.guest.skin),stage:room.stage,seed:room.seed,delay:6,protocol:PROTOCOL,run:room.code+':'+room.session+':'+room.seed};link.send({t:'prepare',config});prepare(config)}}
+ else if(d.t==='prepare'&&auth.seat===1&&!prepared){const c=d.config;if(c?.protocol!==PROTOCOL||typeof c.run!=='string'||c.run.length>80||!roster[c.p1]||!roster[c.p2]||!['rooftop','taneko','office'].includes(c.stage)||!Number.isInteger(c.seed)||validSkin(c.p1,c.skin1)!==c.skin1||validSkin(c.p2,c.skin2)!==c.skin2)return;prepare(c)}
  else if(d.t==='loaded'){remoteLoaded=true;go()}
  else if(d.t==='go'&&auth.seat===1){went=true;clearTimeout(timer);hooks.message({type:'arena-network-go',delay:6})}
  else if(d.t==='input'&&Number.isInteger(d.frame)&&d.frame>=0&&Number.isInteger(d.mask)&&d.mask>=0&&d.mask<=16383)hooks.message({type:'arena-network-input',frame:d.frame,mask:d.mask});
@@ -89,10 +91,11 @@ async function connectionError(text){
     finally{handlingFailure=false}
 }
 window.addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==$('game').contentWindow||!auth||!link)return;const d=e.data;if(d?.run!==hooks.run)return;if(d.type==='arena-network-loaded'){localLoaded=true;link.send({t:'loaded'});go()}else if(d.type==='arena-network-input')link.send({t:'input',frame:d.frame,mask:d.mask});else if(d.type==='arena-network-checksum')link.send({t:'checksum',frame:d.frame,hash:d.hash});else if(d.type==='arena-network-menu')back();else if(d.type==='arena-network-error')connectionError(d.message)});
-for(const [id,p] of Object.entries(roster)){const c=document.createElement('button');c.className='net-fighter';c.dataset.fighter=id;const image=document.createElement('div');image.className='roster-portrait';image.style.backgroundImage='url(portraits/'+id+'.png)';if(id==='yusup')image.style.backgroundSize='400% 400%';c.append(image,document.createTextNode(p.name));c.onclick=()=>update({fighter:id});$('netFighters').append(c)}
+for(const [id,p] of Object.entries(roster)){const c=document.createElement('button');c.className='net-fighter';c.dataset.fighter=id;const image=document.createElement('div');image.className='roster-portrait';image.style.backgroundImage='url(portraits/'+id+'.png)';if(id==='yusup')image.style.backgroundSize='400% 400%';if(id==='rinat')image.style.backgroundSize='800% 400%';c.append(image,document.createTextNode(p.name));c.onclick=()=>update({fighter:id});$('netFighters').append(c)}
 $('networkMode').onclick=()=>playing?window.ArenaMenu?.battle():show();$('netBack').onclick=()=>back();$('netClose').onclick=async()=>{await leave();window.ArenaMenu?.home()};
 $('netCreate').onclick=async()=>{if(busy)return;busy=true;$('netCreate').disabled=true;try{auth=await api('',{name:$('netName').value,fighter:$('fighter1').value,stage:$('arenaStage').value});remember();lock(true);await poll(true);info('Отправь другу код или ссылку и выбери бойца.')}catch(e){info(e.message,true)}finally{busy=false;$('netCreate').disabled=false;render()}};
 $('netJoin').onclick=async()=>{const code=$('netJoinCode').value.trim().toUpperCase();if(!/^[A-HJ-NP-Z2-9]{6}$/.test(code)){info('Введи код из 6 букв и цифр',true);return}if(busy)return;busy=true;$('netJoin').disabled=true;try{auth=await api('/'+code+'/join',{name:$('netName').value,fighter:$('fighter1').value});remember();lock(true);await poll(true);info('Выбери бойца и нажми «Я готов».')}catch(e){info(e.message,true)}finally{busy=false;$('netJoin').disabled=false;render()}};
+$('netSkin').onchange=()=>update({skin:$('netSkin').value});
 $('netReady').onclick=()=>update({ready:!(auth?.seat===0?room?.host:room?.guest)?.ready});$('netStage').onchange=()=>update({stage:$('netStage').value});
 $('netCopy').onclick=async()=>{if(!auth)return;const invitation=location.origin+'/?room='+auth.code;if(await copyInvitation(invitation))info('Ссылка скопирована');else{info('Браузер запретил копирование. Скопируйте ссылку из окна вручную.',true);window.prompt('Скопируйте приглашение:',invitation)}};
 async function leave(){

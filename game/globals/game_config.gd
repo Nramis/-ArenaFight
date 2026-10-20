@@ -7,6 +7,8 @@ var cpu_difficulty: String = "medium"
 var roster_enabled := false
 var p1_character := "rafael"
 var p2_character := "nikita"
+var p1_skin := "default"
+var p2_skin := "default"
 var stage_id := "rooftop"
 var quick_start := false
 var menu_open := false
@@ -35,6 +37,8 @@ func _ready() -> void:
         roster_enabled = true
         p1_character = Roster.valid(str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('p1') || 'rafael'")))
         p2_character = Roster.valid(str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('p2') || 'nikita'")))
+        p1_skin = Skins.valid(p1_character, str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('skin1') || 'default'")))
+        p2_skin = Skins.valid(p2_character, str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('skin2') || 'default'")))
 
 func set_audio(enabled: bool, volume: float = -1.0) -> void:
     sound_enabled = enabled

@@ -11,6 +11,7 @@ const COOLDOWNS_N := [420, 660, 480]
 const EFFECT = preload("res://fx/ability_effect.gd")
 var fighter: Fighter
 var yusup: YusupAbilities
+var rinat: RinatAbilities
 var conversation_source: Fighter
 var cooldowns: Array[int] = [0, 0, 0]
 var energy_frames := 0
@@ -47,6 +48,7 @@ const ROSTER_EFFECT = preload("res://fx/roster_effect.gd")
 func _init(owner_fighter: Fighter) -> void:
     fighter = owner_fighter
     yusup = YusupAbilities.new(owner_fighter)
+    rinat = RinatAbilities.new(owner_fighter)
 
 func is_rafael() -> bool:
     return fighter.roster_name() == "rafael"
@@ -58,7 +60,7 @@ func width_multiplier() -> float:
     return 1.65 if fat_frames > 0 else (1.2 if maris_frames > 0 else 1.0)
 
 func damage_multiplier() -> float:
-    return (0.6 if shrink_frames > 0 else 1.0) * (1.6 if protein_frames > 0 else 1.0) * (1.5 if rage_frames > 0 else 1.0) * (1.25 if maris_frames > 0 else 1.0)
+    return (1.25 if rinat.master_frames > 0 else 1.0) * (0.6 if shrink_frames > 0 else 1.0) * (1.6 if protein_frames > 0 else 1.0) * (1.5 if rage_frames > 0 else 1.0) * (1.25 if maris_frames > 0 else 1.0)
 
 func attack_speed_multiplier() -> float:
     return (1.45 if energy_frames > 0 else 1.0) * (1.15 if protein_frames > 0 else 1.0) * (1.25 if rage_frames > 0 else 1.0) * (1.5 if maris_frames > 0 else 1.0) * (1.1 if fish_frames > 0 else 1.0)
@@ -68,6 +70,7 @@ func speed_multiplier() -> float:
 
 func tick() -> void:
     yusup.tick()
+    rinat.tick()
     _tick_phone()
     _tick_teleport()
     if stun_frames > 0:
@@ -134,7 +137,7 @@ func tick() -> void:
             _ai_timer = 90 if fighter.input_source.difficulty == "hard" else 155
             var distance: float = absf(fighter.position.x - fighter.opponent.position.x)
             var slot := 0
-            if fighter.roster_name() in ["vladislav","mavrin","ramis","ilgiz","bigboss","azat","polina","yusup"]:
+            if fighter.roster_name() in ["vladislav","mavrin","ramis","ilgiz","bigboss","azat","polina","yusup","rinat"]:
                 var available: Array[int] = []
                 for i in 3:
                     if cooldowns[i] == 0:
@@ -155,7 +158,7 @@ func _apply_speed() -> void:
     fighter.dash_back_speed = base["dash_back_speed"] * multiplier
 
 func locked() -> bool:
-    return conversation_locked() or stun_frames > 0 or away_frames > 0 or freeze_frames > 0 or cast_frames > 0 or pose_frames > 0 or talking_frames > 0
+    return rinat.locked() or conversation_locked() or stun_frames > 0 or away_frames > 0 or freeze_frames > 0 or cast_frames > 0 or pose_frames > 0 or talking_frames > 0
 
 func conversation_locked() -> bool:
     return yusup.story_frames > 0 or (is_instance_valid(conversation_source) and conversation_source.abilities.yusup.story_frames > 0)
@@ -175,7 +178,9 @@ func activate(slot: int) -> bool:
     fighter.vel = Vector2.ZERO
     fighter.current_move = null
     fighter.state_machine.force_state("Idle")
-    if fighter.roster_name() == "yusup":
+    if fighter.roster_name() == "rinat":
+        rinat.activate(slot)
+    elif fighter.roster_name() == "yusup":
         yusup.activate(slot)
     elif fighter.roster_name() == "polina":
         pose_kind = ["swim_teleport","rain_prayer","random_gesture"][slot]
@@ -366,6 +371,7 @@ func _spawn(kind: String, variant: int = 0) -> void:
 
 func interrupt_cast() -> void:
     yusup.interrupt()
+    rinat.interrupt()
     phone_frames = 0
     stun_frames = 0
     if teleport_frames > 0:
@@ -388,6 +394,7 @@ func freeze() -> void:
 
 func reset() -> void:
     yusup.reset()
+    rinat.reset()
     conversation_source = null
     phone_frames = 0
     phone_roll = -1
@@ -423,6 +430,10 @@ func reset() -> void:
 func status_text() -> String:
     if yusup.story_frames > 0:
         return yusup.speech()
+    if rinat.bound_frames > 0:
+        return "В ЦЕПЯХ %.1f" % (rinat.bound_frames / 60.0)
+    if rinat.drink_frames > 0:
+        return "ЭЛИКСИР…"
     if stun_frames > 0:
         return "В СТУПОРЕ %.1f" % (stun_frames/60.0)
     if freeze_frames > 0:
@@ -430,6 +441,8 @@ func status_text() -> String:
     if cast_frames > 0:
         return "ПЬЁТ " + effect_name
     var states: Array[String] = []
+    if rinat.master_frames > 0:
+        states.append("МАСТЕР +25%% · %.1f" % (rinat.master_frames / 60.0))
     if fighter.rhythm.depleted_frames > 0:
         states.append("А ЗАБЕЙ · ВЫНОСЛИВОСТЬ 0 · %.1f" % (fighter.rhythm.depleted_frames / 60.0))
     if yusup.swim_frames > 0:
@@ -442,7 +455,7 @@ func status_text() -> String:
         states.append("ВНЕ АРЕНЫ %.1f" % (away_frames/60.0))
     if shrink_frames > 0:
         states.append("МАЛЕНЬКИЙ / СЛАБЫЙ %.1f" % (shrink_frames/60.0))
-    if pose_frames > 0 and fighter.roster_name() in ["ilgiz","bigboss","azat","polina","yusup"]:
+    if pose_frames > 0 and fighter.roster_name() in ["ilgiz","bigboss","azat","polina","yusup","rinat"]:
         states.append(effect_name)
     if maris_frames > 0:
         states.append("МАРИС %.1f" % (maris_frames/60.0))

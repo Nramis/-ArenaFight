@@ -71,6 +71,7 @@ func _apply(f: InputFrame, fresh: bool) -> void:
 		"antiair":
 			if fresh:
 				f.hp = true
+				f.down = fighter.roster_name() == "rinat"
 		"throw":
 			if fresh:
 				f.lp = true

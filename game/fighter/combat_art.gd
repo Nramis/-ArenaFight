@@ -12,6 +12,11 @@ var f: Fighter
 
 func _ready() -> void:
     f = get_parent()
+    if f.roster_name() == "rinat" or (f.roster_name() == "vladislav" and f.skin_id == "paquito"):
+        var custom := Node2D.new()
+        custom.set_script(preload("res://fighter/rinat_art.gd"))
+        add_child(custom)
+        return
     var locomotion := LocomotionArt.new()
     f.call_deferred("add_child",locomotion)
     if f.roster_name() == "yusup":

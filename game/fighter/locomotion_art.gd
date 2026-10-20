@@ -15,6 +15,8 @@ var breathing := 0.0
 static func handles(fighter: Fighter) -> bool:
     if fighter == null or fighter.abilities == null or fighter.state_machine.current_state == null or fighter.health <= 0:
         return false
+    if fighter.roster_name() == "rinat" or fighter.skin_id != "default":
+        return false
     var a := fighter.abilities
     var state := str(fighter.state_machine.current_state.name)
     if state in ["Hitstun","Knockdown","Throw"] or a.cast_frames > 0 or a.pose_frames > 0 or a.talking_frames > 0 or a.flying or a.fat_frames > 0:

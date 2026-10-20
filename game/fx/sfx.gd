@@ -3,6 +3,12 @@ extends Node
 
 # Combat recordings plus a separately attributed Toasty excerpt. Bounded voice pool.
 const FILES = {
+    "rinatChain":["rinatChain.wav"],
+    "rinatChant0":["rinatChant0.wav"],
+    "rinatChant1":["rinatChant1.wav"],
+    "rinatChant2":["rinatChant2.wav"],
+    "rinatVape":["rinatVape.wav"],
+    "rinatTear":["cloth1.ogg", "cloth2.ogg"],
     "yusupStory":["yusupStory.wav"],
     "yusupForget":["yusupForget.wav"],
     "toasty":["toasty-mk.mp3"],
@@ -29,7 +35,7 @@ const FILES = {
     "phone":["metalClick.ogg"],
     "ko":["impactSoft_heavy_000.ogg"]
 }
-const VOLUMES = {"yusupStory":-10.0,"yusupForget":-10.0,"toasty":-13.0,"combo":-21.0,"combo_finish":-18.0,"counter":-22.0,"knockdown":-12.0,"round":-21.0,"step":-23.0,"land":-16.0,"swing":-19.0,"swing_heavy":-17.0,"hit":-12.0,"hit_heavy":-12.0,"block":-16.0,"buff":-16.0,"item":-18.0,"trap":-18.0,"beam":-24.0,"summon":-17.0,"phone":-16.0,"ko":-11.0,"pistol":-19.0,"rifle":-22.0}
+const VOLUMES = {"rinatChain":-8.0,"rinatChant0":-12.0,"rinatChant1":-12.0,"rinatChant2":-12.0,"rinatVape":-17.0,"rinatTear":-13.0,"yusupStory":-10.0,"yusupForget":-10.0,"toasty":-13.0,"combo":-21.0,"combo_finish":-18.0,"counter":-22.0,"knockdown":-12.0,"round":-21.0,"step":-23.0,"land":-16.0,"swing":-19.0,"swing_heavy":-17.0,"hit":-12.0,"hit_heavy":-12.0,"block":-16.0,"buff":-16.0,"item":-18.0,"trap":-18.0,"beam":-24.0,"summon":-17.0,"phone":-16.0,"ko":-11.0,"pistol":-19.0,"rifle":-22.0}
 var _cosmetic_rng := RandomNumberGenerator.new()
 var bank: Dictionary = {}
 var voices: Array[AudioStreamPlayer] = []
@@ -64,7 +70,7 @@ func play_event(event: String) -> void:
     _next_voice = (_next_voice+1)%voices.size()
     voice.stream = bank[event][_cosmetic_rng.randi_range(0,bank[event].size()-1)]
     voice.volume_db = VOLUMES.get(event,-17.0)
-    voice.pitch_scale = 1.0 if event in ["toasty", "yusupStory", "yusupForget"] else _cosmetic_rng.randf_range(0.96,1.04)
+    voice.pitch_scale = 1.0 if event.begins_with("rinatCh") or event in ["toasty", "yusupStory", "yusupForget"] else _cosmetic_rng.randf_range(0.96,1.04)
     voice.play()
 
 func play_hit(blocked: bool = false, damage: int = 60) -> void:

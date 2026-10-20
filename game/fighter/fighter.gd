@@ -60,6 +60,7 @@ var combo_display_frames := 0
 var quick_special_cooldown: int = 0
 var abilities: FighterAbilities
 var roster_id := ""
+var skin_id := "default"
 
 const GROUNDED_STATES := ["Idle", "Walk", "Crouch"]
 const BTN_KEYS := ["lp", "mp", "hp", "lk", "mk", "hk"]
@@ -109,9 +110,13 @@ func _ready() -> void:
     if GameConfig.roster_enabled and name in ["Player1", "Player2"]:
         roster_id = GameConfig.p1_character if name == "Player1" else GameConfig.p2_character
         character_id = "kaze" if roster_id in ["rafael","vladislav"] else "homura"
+    skin_id = Skins.valid(roster_name(), GameConfig.p1_skin if name == "Player1" else GameConfig.p2_skin)
     _apply_base_colors()
     _setup_sprite()
     abilities = FighterAbilities.new(self)
+    var rinat_fx := Node2D.new()
+    rinat_fx.set_script(preload("res://fx/rinat_fx.gd"))
+    add_child(rinat_fx)
     health = max_health
     moves = MoveSet.default_normals()
     specials = Characters.specials_for(character_id)
@@ -455,6 +460,9 @@ func try_start_attack(stance: String) -> bool:
     for btn in ATTACK_PRIORITY:
         if btn in just_pressed or (attack_buffer_frames > 0 and btn == attack_buffer):
             var key: String = stance + "." + btn
+            var uppercut: bool = roster_name() == "rinat" and on_ground and input.down and btn in PUNCHES
+            if uppercut:
+                key = "cr.hp"
             if moves.has(key):
                 var result := rhythm.try_normal(btn,abilities != null and abilities.energy_frames > 0)
                 if result.is_empty():
@@ -462,6 +470,17 @@ func try_start_attack(stance: String) -> bool:
                     attack_buffer_frames = 0
                     return false
                 var move: MoveData = moves[key].duplicate()
+                if uppercut:
+                    move.move_name = "RinatUppercut"
+                    move.damage = 115
+                    move.startup = 10
+                    move.active = 5
+                    move.recovery = 28
+                    move.hitbox_offset = Vector2(30, -74)
+                    move.hitbox_size = Vector2(48, 86)
+                    move.pushback = 390
+                    move.causes_knockdown = true
+                    move.cancelable = false
                 move.damage = int(round(move.damage*result.damage))
                 move.recovery += int(result.recovery)
                 if stance == "j":
@@ -507,6 +526,8 @@ func start_move(m: MoveData) -> void:
 ## Intenta iniciar un especial según el buffer de motion + botón. Prioridad: DP > QCF > QCB.
 func try_start_special() -> bool:
     if roster_name() == "azat":
+        return false
+    if roster_name() == "rinat" and input.down and _pressed_strength(PUNCHES) != "":
         return false
     var punch := _pressed_strength(PUNCHES)
     var kick := _pressed_strength(KICKS)
@@ -616,6 +637,8 @@ func receive_hit(m: MoveData, attacker_facing: int) -> void:
     if last_counter_hit:
         emit_sound("counter")
     if m.causes_knockdown or finisher:
+        if abilities != null:
+            abilities.rinat.release_binding()
         if m.pushback >= 300:
             vel.y = -210.0
             on_ground = false

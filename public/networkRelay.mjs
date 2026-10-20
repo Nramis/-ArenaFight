@@ -1,4 +1,4 @@
-import { PROTOCOL } from './network-core.mjs?v=7';
+import { PROTOCOL } from './network-core.mjs?v=8-rinat';
 
 export class RelayLink {
     constructor({ url, token, onData, onOpen, onFailure, WebSocketClass = globalThis.WebSocket }) {

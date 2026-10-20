@@ -51,3 +51,5 @@ Toasty cameo: short original Mortal Kombat / Dan Forden / Midway voice excerpt, 
 Salahov assist: original eight-pose illustrated atlas based on the user-supplied photo reference.
 
 Юсуп: оригинальный атлас ImageGen по фотографии пользователя. Реплики «Там, короче…» и «А забей!» синтезированы Microsoft Pavel (Windows SAPI); голос человека с фотографии не клонировался.
+
+Rinat and the Scorpion-style / Paquito-style fighter costumes: original ImageGen sprite atlases based on supplied references. 160 poses, alpha-contour metadata; see game/assets/rinat/ART.md in source. Rinat speech and original Tatar chants: synthetic eSpeak NG Russian/Tatar voices, FFmpeg effects. Vape sound: original procedural noise. Mortal Kombat/Scorpion and Mobile Legends/Paquito are referenced character designs; this fan project is not affiliated with their owners.

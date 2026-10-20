@@ -1,0 +1,76 @@
+{
+  "size": 27909180,
+  "sha256": "6a8e5570a743d9fae4d8eb11c944852a7e78d9a969c5d1d06de1f50caa259425",
+  "parts": [
+    {
+      "name": "game-data-6a8e5570a743-00.bin",
+      "size": 2097152,
+      "sha256": "ed3d6672e399b156a439fecea82ef61176f5891019f051be579ecfe92ea24e9a"
+    },
+    {
+      "name": "game-data-6a8e5570a743-01.bin",
+      "size": 2097152,
+      "sha256": "f2501cc2872648d0a1f5b9b85346dba69aa559caf8a4fc0066b11a1d6a7b2e26"
+    },
+    {
+      "name": "game-data-6a8e5570a743-02.bin",
+      "size": 2097152,
+      "sha256": "c8a5cefbee319bd8b425e571e3b6af4569598732d118d8a8d0af267a228911d5"
+    },
+    {
+      "name": "game-data-6a8e5570a743-03.bin",
+      "size": 2097152,
+      "sha256": "8df3ef1db953ee1e5c9a2f804869d4679eeba3d8eb128f0b0c602c7f283bd3c5"
+    },
+    {
+      "name": "game-data-6a8e5570a743-04.bin",
+      "size": 2097152,
+      "sha256": "e2a53696d4596c031efa9a1c41c0d262ae46efc4d49024bb8438450a1fd44856"
+    },
+    {
+      "name": "game-data-6a8e5570a743-05.bin",
+      "size": 2097152,
+      "sha256": "b9898bc119b80f530d7ef0c3ce08d17d3248029de427cdb39182c049282fcfa6"
+    },
+    {
+      "name": "game-data-6a8e5570a743-06.bin",
+      "size": 2097152,
+      "sha256": "9f3f91f87e752e1e7e6ac5298b3a7ec90e826095223dfac7cd1cde695df6815d"
+    },
+    {
+      "name": "game-data-6a8e5570a743-07.bin",
+      "size": 2097152,
+      "sha256": "251e57f885234bcbef6c0102a061944c89aca594eeb738fe92da556a0e4c61dc"
+    },
+    {
+      "name": "game-data-6a8e5570a743-08.bin",
+      "size": 2097152,
+      "sha256": "ad351c3bbc4f7e9dd4c5c03415afed65b9d34204b7532e251cac1801521aa3aa"
+    },
+    {
+      "name": "game-data-6a8e5570a743-09.bin",
+      "size": 2097152,
+      "sha256": "5a3596d8f3da491e23f0bebb1342afee98851d7fb991d4665a384d1175f8efc5"
+    },
+    {
+      "name": "game-data-6a8e5570a743-10.bin",
+      "size": 2097152,
+      "sha256": "fb5406e9193cf3de908ca392e729eeffda32ee32da46182137aab45f570ab0d0"
+    },
+    {
+      "name": "game-data-6a8e5570a743-11.bin",
+      "size": 2097152,
+      "sha256": "faf7359600600c4efae0e9b0f20ef3c3ab44ecc92a9e29ee06a49d63fb3ef000"
+    },
+    {
+      "name": "game-data-6a8e5570a743-12.bin",
+      "size": 2097152,
+      "sha256": "5fd8b0665a816dcffd8cf2b0811bbac790fbb6004e58e685f18ec740ae92ff07"
+    },
+    {
+      "name": "game-data-6a8e5570a743-13.bin",
+      "size": 646204,
+      "sha256": "c781a78c1348fe6a823be72b5f6c51080424cacc199d0c46fa26c79b79ae9ab7"
+    }
+  ]
+}

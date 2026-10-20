@@ -23,3 +23,7 @@ Original Kenney license notices are preserved in this directory. Sample file nam
 ## User-requested Toasty cameo
 
 `toasty-mk.mp3`: short original “Toasty!” voice excerpt from Mortal Kombat (Dan Forden / Midway), requested by the user, sourced from https://www.myinstants.com/en/instant/mortal-kombat-toasty-67477/ (file /media/sounds/mk3-04245.mp3). This excerpt is not CC0 and is not part of the CC0 sound packs above.
+
+## Rinat
+
+`rinatChain.wav`, `rinatChant0.wav`–`rinatChant2.wav` are synthetic eSpeak NG voices (Russian and Tatar), processed with FFmpeg. The short chants are original lines, not an excerpt of an existing song. No impersonation of the reference person's voice. `rinatVape.wav` is seeded procedural filtered noise. Reproduce with `python tools/create_rinat_audio.py --espeak-bin espeak-ng`. Shirt tearing reuses the credited Kenney cloth recordings.
