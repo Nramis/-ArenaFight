@@ -6,7 +6,7 @@ func enter() -> void:
 	pass
 
 func physics_update(delta: float) -> void:
-	fighter.vel.x = move_toward(fighter.vel.x,0.0,2600.0*delta)
+	fighter.vel.x = move_toward(fighter.vel.x,0.0,1500.0*delta)
 	if fighter.try_start_special():
 		state_machine.transition_to("Attack")
 		return

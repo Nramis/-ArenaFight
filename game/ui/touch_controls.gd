@@ -38,6 +38,10 @@ func _ready() -> void:
         buttons.append({"action":"p1_"+actions[i],"center":Vector2(280+(i%3)*33,148+int(i/3)*34),"radius":15.0,"label":("НЫТЬ "+str(i%3+1) if fighter.roster_name() == "azat" else labels[i]),"slot":-1})
     buttons.append({"action":"ui_cancel","center":Vector2(192,55),"radius":14.0,"label":"МЕНЮ","slot":-1})
     buttons.append({"action":"toggle_audio","center":Vector2(230,55),"radius":14.0,"label":"ЗВУК","slot":-1})
+    if fighter.roster_name() in ["nikita", "mavrin", "bigboss", "ramis"]:
+        buttons.append({"action":"p1_extra1","center":Vector2(145,181),"radius":17.0,"label":{"nikita":"СУЙТОН","mavrin":"КЭТ!","bigboss":"СЫРКИ","ramis":"БРИТЬЁ"}[fighter.roster_name()],"slot":-1})
+    if fighter.roster_name() == "mavrin" and fighter.opponent.roster_name() == "polina":
+        buttons.append({"action":"p1_extra2","center":Vector2(190,181),"radius":17.0,"label":"ПОЛИНА","slot":-1})
     buttons.append({"action":"p1_fly","center":Vector2(104,181),"radius":17.0,"label":"ПОЛЁТ","slot":-1})
     visible = enabled
     set_process(enabled)
@@ -127,6 +131,8 @@ func _draw() -> void:
         var text: String = button.label
         if button.action == "toggle_audio":
             text = "ЗВУК" if GameConfig.sound_enabled else "ТИХО"
+        if button.action == "p1_extra1" and fighter.abilities.expansion.auxiliary_cd > 0:
+            text = "%.1f" % (fighter.abilities.expansion.auxiliary_cd / 60.0)
         var special: bool = button.slot >= 0
         var cd := 0
         if special:
@@ -140,6 +146,10 @@ func _draw() -> void:
         var heavy: bool = button.action in ["p1_hp","p1_hk"]
         var utility: bool = button.action in ["ui_cancel","toggle_audio"]
         var accent := Color("d6fc63") if heavy or special else Color("a6cfef")
+        var source: Fighter = fighter.abilities.expansion.hold_source
+        if is_instance_valid(source) and source.abilities.expansion.counter_available() and button.action == "p1_" + source.abilities.expansion.hold_counter_button:
+            accent = Color("8cffe0")
+            text = "ЖМИ!"
         var style := StyleBoxFlat.new()
         style.bg_color = Color("536a35ed") if pressed else (Color("25331ee0") if special else Color("172535d9"))
         style.border_color = Color("66717a") if cd > 0 else accent

@@ -27,3 +27,6 @@ Original Kenney license notices are preserved in this directory. Sample file nam
 ## Rinat
 
 `rinatChain.wav`, `rinatChant0.wav`–`rinatChant2.wav` are synthetic eSpeak NG voices (Russian and Tatar), processed with FFmpeg. The short chants are original lines, not an excerpt of an existing song. No impersonation of the reference person's voice. `rinatVape.wav` is seeded procedural filtered noise. Reproduce with `python tools/create_rinat_audio.py --espeak-bin espeak-ng`. Shirt tearing reuses the credited Kenney cloth recordings.
+
+## Kudesnik update
+`mavrinKet.wav`, `mavrinPolina.wav`, `polinaReply.wav`: synthetic Russian eSpeak voices (ru/ru+f3), generated from original user-requested dialogue; not recordings or voice clones. `waterSeal.wav` and `waterJet.wav`: original procedural effects. Reproduce with `python tools/create_expansion_audio.py` and eSpeak installed.

@@ -12,11 +12,25 @@ var f: Fighter
 
 func _ready() -> void:
     f = get_parent()
+    if f.roster_name() == "nikita":
+        var nikita := Node2D.new()
+        nikita.set_script(preload("res://fighter/nikita_art.gd"))
+        add_child(nikita)
+        return
     if f.roster_name() == "rinat" or (f.roster_name() == "vladislav" and f.skin_id == "paquito"):
         var custom := Node2D.new()
         custom.set_script(preload("res://fighter/rinat_art.gd"))
         add_child(custom)
         return
+    if f.roster_name() == "bigboss":
+        var cheese := Node2D.new()
+        cheese.set_script(preload("res://fighter/cheese_art.gd"))
+        add_child(cheese)
+    if f.roster_name() == "mavrin":
+        var hold_art := PolinaHoldArt.new()
+        add_child(hold_art)
+    if f.roster_name() == "ramis":
+        add_child(RamisShaveArt.new())
     var locomotion := LocomotionArt.new()
     f.call_deferred("add_child",locomotion)
     if f.roster_name() == "yusup":
@@ -61,13 +75,15 @@ func _process(delta: float) -> void:
     var a := f.abilities
     var special := texture == null or _uses_special_art()
     if is_instance_valid(legacy):
-        legacy.visible = special and f.health > 0 and not LocomotionArt.handles(f)
+        legacy.visible = not PolinaHoldArt.handles(f) and not RamisShaveArt.handles(f) and not f.abilities.expansion.cheese_mode and special and f.health > 0 and not LocomotionArt.handles(f)
     queue_redraw()
 
 func _draw() -> void:
     if texture == null or f.abilities == null or f.state_machine.current_state == null:
         return
     var a := f.abilities
+    if a.expansion.cheese_mode or PolinaHoldArt.handles(f) or RamisShaveArt.handles(f):
+        return
     _draw_aura(a)
     if LocomotionArt.handles(f):
         return

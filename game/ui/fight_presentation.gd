@@ -34,7 +34,7 @@ func _process(_delta: float) -> void:
 	var state := manager.match_state
 	var phase := state.phase
 	var opening_fight := phase == MatchState.FIGHT and state.phase_frame < 24
-	panel.visible = phase != MatchState.FIGHT or opening_fight
+	panel.visible = (phase != MatchState.FIGHT or opening_fight) and not (is_instance_valid(manager.finisher) and manager.finisher.active)
 	rematch_button.visible = phase == MatchState.MATCH_END
 	select_button.visible = rematch_button.visible
 	if phase != _previous_phase:
@@ -55,7 +55,19 @@ func _process(_delta: float) -> void:
 	elif phase == MatchState.MATCH_END:
 		title.text = "ПОБЕДА!"
 		subtitle.text = _winner_name()+"\n"+str(state.p1_rounds)+" : "+str(state.p2_rounds)
-	var scale_in := 1.0+maxf(0,1-state.phase_frame/10.0)*0.15
+	# Let the bare-torso hero look at the camera without the usual central panel.
+	var hero_finish := phase in [MatchState.ROUND_END, MatchState.MATCH_END] and (manager.p1.abilities.expansion.one_punch_victory or manager.p2.abilities.expansion.one_punch_victory)
+	var shade: ColorRect = panel.get_node("Shade")
+	shade.position = Vector2(0, 51 if hero_finish else 60)
+	shade.size = Vector2(384, 15 if hero_finish else 98)
+	title.position = Vector2(8, 51 if hero_finish else 66)
+	title.size = Vector2(368, 15 if hero_finish else 33)
+	title.add_theme_font_size_override("font_size", 10 if hero_finish else 25)
+	subtitle.visible = not hero_finish
+	arena_label.visible = not hero_finish
+	if hero_finish:
+		title.text = "ОДИН УДАР · РАМИС ПОБЕДИЛ"
+	var scale_in := 1.0 if hero_finish else 1.0+maxf(0,1-state.phase_frame/10.0)*0.15
 	title.pivot_offset = title.size/2
 	title.scale = Vector2.ONE*scale_in
 

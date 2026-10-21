@@ -66,6 +66,8 @@ func _pose() -> int:
         if move.move_name.begins_with("cr."):
             return 16
         return 13 if move.damage >= 80 else (12 if move.damage >= 45 else 11)
+    if r.has_bound_target():
+        return 26
     if r.drink_frames > 0:
         return 27 if r.drink_frames > 10 else 28
     if r.chain_frames > 0:

@@ -114,6 +114,10 @@ func _ready() -> void:
     _apply_base_colors()
     _setup_sprite()
     abilities = FighterAbilities.new(self)
+    SkinStyle.install(self)
+    var expansion_visual := Node2D.new()
+    expansion_visual.set_script(preload("res://fx/expansion_visual.gd"))
+    add_child(expansion_visual)
     var rinat_fx := Node2D.new()
     rinat_fx.set_script(preload("res://fx/rinat_fx.gd"))
     add_child(rinat_fx)
@@ -293,15 +297,15 @@ func _physics_process(delta: float) -> void:
     rhythm.tick()
     combo_display_frames = maxi(0,combo_display_frames-1)
     landing_lag_frames = maxi(0,landing_lag_frames-1)
+    # Poll first: auxiliary moves and chain pulling consume this simulation frame.
+    if input_source != null:
+        input = input_source.poll()
+    _update_button_edges()
     # Hitstop: congela por completo a ambos (impacto). Ni input, ni estado, ni física.
     if abilities != null:
         abilities.tick()
         if abilities.locked():
             return
-    # Sample button edges even during impact pause, so short taps are not lost.
-    if input_source != null:
-        input = input_source.poll()
-    _update_button_edges()
     if hitstop_frames > 0:
         hitstop_frames -= 1
         return
@@ -387,7 +391,7 @@ func _update_button_edges() -> void:
 
 ## Agarre: LP+LK (edge en uno con el otro mantenido), solo desde estado neutro.
 func _update_throw_press() -> void:
-    if roster_name() == "azat":
+    if roster_name() == "azat" or (abilities != null and (abilities.expansion.cheese_mode or abilities.rinat.has_bound_target())):
         throw_pressed = false
         return
     var st := state_machine.current_state
@@ -406,7 +410,7 @@ func consume_dash() -> int:
 
 func walk(screen_dir: int) -> void:
     var is_fwd: bool = screen_dir == facing()
-    vel.x = move_toward(vel.x,screen_dir * (walk_fwd_speed if is_fwd else walk_back_speed),(2400.0 if vel.x*screen_dir < 0 else 3000.0)/60.0)
+    vel.x = move_toward(vel.x,screen_dir * (walk_fwd_speed if is_fwd else walk_back_speed),(1550.0 if vel.x*screen_dir < 0 else 1850.0)/60.0)
 
 func stop_horizontal() -> void:
     vel.x = 0.0
@@ -428,7 +432,7 @@ func launch_jump(h_dir: int) -> void:
 func steer_air(delta: float) -> void:
     var dir := input.horizontal()
     if dir != 0:
-        vel.x = move_toward(vel.x,dir*jump_h_speed,650.0*delta)
+        vel.x = move_toward(vel.x,dir*jump_h_speed,420.0*delta)
 
 func _spawn_motion_dust() -> void:
     if not is_inside_tree():
@@ -439,12 +443,16 @@ func _spawn_motion_dust() -> void:
     get_parent().add_child(dust)
 
 func apply_gravity(delta: float) -> void:
-    vel.y += gravity * delta
+    vel.y = minf(900.0, vel.y + gravity * delta * (0.92 if vel.y < 0 else 1.08))
 
 # --- Ataques ---
 
 ## Intenta iniciar un normal según la postura ("st"/"cr"/"j"). Devuelve true si arrancó.
 func try_start_attack(stance: String) -> bool:
+    if abilities != null and (abilities.expansion.cheese_mode or abilities.rinat.has_bound_target()):
+        attack_buffer = ""
+        attack_buffer_frames = 0
+        return false
     if abilities != null and abilities.yusup.swim_frames > 0:
         return false
     if roster_name() == "azat":
@@ -525,6 +533,8 @@ func start_move(m: MoveData) -> void:
 
 ## Intenta iniciar un especial según el buffer de motion + botón. Prioridad: DP > QCF > QCB.
 func try_start_special() -> bool:
+    if abilities != null and (abilities.expansion.cheese_mode or abilities.rinat.has_bound_target()):
+        return false
     if roster_name() == "azat":
         return false
     if roster_name() == "rinat" and input.down and _pressed_strength(PUNCHES) != "":
@@ -561,7 +571,7 @@ func spawn_projectile(m: MoveData) -> void:
     get_parent().add_child(proj)
 
 func is_invulnerable() -> bool:
-    if abilities != null and abilities.conversation_locked():
+    if abilities != null and (abilities.conversation_locked() or abilities.expansion.interaction_locked()):
         return true
     return invuln_frames > 0 or (state_machine.current_state != null and state_machine.current_state.name == "Knockdown") or (abilities != null and (abilities.fish_frames > 0 or abilities.away_frames > 0 or (abilities.teleport_frames > 24 and abilities.teleport_frames <= 32)))
 
@@ -631,6 +641,7 @@ func receive_hit(m: MoveData, attacker_facing: int) -> void:
     combo_display_frames = 90
     last_hit_blocked = false
     health = max(health - dmg, 0)
+    emit_blood(dmg, attacker_facing)
     var finisher := m.combo_finisher and combo_count >= 3
     var push := m.pushback if not m.combo_finisher or finisher else minf(m.pushback,110.0)
     vel = Vector2(attacker_facing * (push + maxf(0,combo_count-2)*18.0), 0.0)
@@ -674,6 +685,7 @@ func get_thrown(thrower_facing: int) -> void:
     if abilities != null:
         abilities.interrupt_cast()
     health = max(health - THROW_DAMAGE, 0)
+    emit_blood(THROW_DAMAGE, thrower_facing)
     knockdown_frames = KNOCKDOWN_FRAMES
     vel = Vector2(thrower_facing * 120.0, 0.0)
     state_machine.transition_to("Knockdown")
@@ -729,3 +741,13 @@ func is_crouching_pose() -> bool:
         return true
     var state := state_machine.current_state
     return state != null and (state.name == "Crouch" or (state.name == "Blockstun" and input.down) or (state.name == "Attack" and current_move != null and current_move.move_name.begins_with("cr.")))
+
+func emit_blood(damage: int, direction: int) -> void:
+    if damage <= 0 or not is_inside_tree():
+        return
+    var spray := Node2D.new()
+    spray.set_script(preload("res://fx/blood_spray.gd"))
+    spray.position = hurtbox_rect().get_center() + Vector2(direction * 12, -8)
+    spray.damage = damage
+    spray.direction = direction
+    get_parent().add_child(spray)

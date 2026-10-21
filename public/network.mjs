@@ -1,5 +1,5 @@
-import {skinOptions,validSkin,skinNames} from './skins.mjs?v=1';
-import {PeerLink,PROTOCOL} from './network-core.mjs?v=8-rinat';
+import {skinOptions,validSkin,skinNames} from './skins.mjs?v=2';
+import {PeerLink,PROTOCOL} from './network-core.mjs?v=9-kudesnik';
 import {copyInvitation} from './networkBrowser.mjs?v=1';
 import {RelayLink} from './networkRelay.mjs?v=3';
 const $=id=>document.getElementById(id),hooks=window.ArenaOnlineHooks,roster=hooks.roster;
@@ -57,7 +57,7 @@ function receive(d){
  else if(d.t==='prepare'&&auth.seat===1&&!prepared){const c=d.config;if(c?.protocol!==PROTOCOL||typeof c.run!=='string'||c.run.length>80||!roster[c.p1]||!roster[c.p2]||!['rooftop','taneko','office'].includes(c.stage)||!Number.isInteger(c.seed)||validSkin(c.p1,c.skin1)!==c.skin1||validSkin(c.p2,c.skin2)!==c.skin2)return;prepare(c)}
  else if(d.t==='loaded'){remoteLoaded=true;go()}
  else if(d.t==='go'&&auth.seat===1){went=true;clearTimeout(timer);hooks.message({type:'arena-network-go',delay:6})}
- else if(d.t==='input'&&Number.isInteger(d.frame)&&d.frame>=0&&Number.isInteger(d.mask)&&d.mask>=0&&d.mask<=16383)hooks.message({type:'arena-network-input',frame:d.frame,mask:d.mask});
+ else if(d.t==='input'&&Number.isInteger(d.frame)&&d.frame>=0&&Number.isInteger(d.mask)&&d.mask>=0&&d.mask<=65535)hooks.message({type:'arena-network-input',frame:d.frame,mask:d.mask});
  else if(d.t==='checksum'&&Number.isInteger(d.frame)&&typeof d.hash==='string'&&d.hash.length===64)hooks.message({type:'arena-network-checksum',frame:d.frame,hash:d.hash});
  else if(d.t==='ping')link.send({t:'pong',at:d.at});
  else if(d.t==='pong'){lastPong=Date.now();$('netConnection').textContent=(relayAvailable?'СЕРВЕР · ':'СЕТЬ · ')+Math.max(0,Math.round(performance.now()-Number(d.at)))+' мс'}

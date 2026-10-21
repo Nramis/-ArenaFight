@@ -33,3 +33,8 @@ capture.png
 !assets/azat.png.import
 
 !assets/polina-specials.png.import
+
+# Keep low-memory texture import settings for paired animations.
+!assets/grapples/*.png.import
+
+!assets/ramis-hero/*.png.import

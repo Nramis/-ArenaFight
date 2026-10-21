@@ -26,6 +26,7 @@ var hud: HUD = null
 var match_state := MatchState.new()
 var sfx: Sfx = null
 var cameo: ComboCameo
+var finisher: FinisherScene
 var _shake: int = 0
 
 func _ready() -> void:
@@ -99,26 +100,30 @@ func _physics_process(delta: float) -> void:
         if fighter.abilities.yusup.story_frames > 0:
             fighter.abilities.yusup.tick_story()
             return
-    var ev := match_state.tick(p1.health, p2.health)
+    var hero_scene := p1.abilities.expansion.hero.active() or p2.abilities.expansion.hero.active()
+    # Let the ground impact and burial finish before switching to the KO phase.
+    var ev := "" if hero_scene else match_state.tick(p1.health, p2.health)
     if ev == "fight" and sfx != null:
         sfx.play_event("round")
     if ev == "next_round":
         _reset_round()
-    elif ev == "round_end" and sfx != null:
-        sfx.play_ko()
+    elif ev == "round_end":
+        if sfx != null:
+            sfx.play_ko()
+        _start_finisher()
     # Pueden actuar en intro y pelea; se congelan en fin de round / fin de match.
     var can_act := match_state.phase == MatchState.FIGHT
     p1.frozen = not can_act
     p2.frozen = not can_act
     # Pushbox + paredes (siempre)
-    if p1.abilities.away_frames == 0 and p2.abilities.away_frames == 0 and StagePhysics.bodies_overlap_vertically(p1,p2):
+    if p1.abilities.away_frames == 0 and p2.abilities.away_frames == 0 and not p1.abilities.expansion.interaction_locked() and not p2.abilities.expansion.interaction_locked() and StagePhysics.bodies_overlap_vertically(p1,p2):
         var sep := StagePhysics.separate_bounded(p1.position.x, p2.position.x, pushbox_min_sep * (p1.abilities.size_multiplier() + p2.abilities.size_multiplier()) / 2.0, stage_left, stage_right)
         p1.position.x = sep[0]
         p2.position.x = sep[1]
         p1.position.x = StagePhysics.clamp_wall(p1.position.x, stage_left, stage_right)
         p2.position.x = StagePhysics.clamp_wall(p2.position.x, stage_left, stage_right)
     # Agarres y golpes durante intro/pelea
-    if can_act and p1.abilities.away_frames == 0 and p2.abilities.away_frames == 0:
+    if can_act and p1.abilities.away_frames == 0 and p2.abilities.away_frames == 0 and not p1.abilities.expansion.interaction_locked() and not p2.abilities.expansion.interaction_locked():
         Throws.resolve(p1, p2, throw_range)
         if Combat.resolve(p1, p2):
             _on_hit(p2)
@@ -140,6 +145,9 @@ func _physics_process(delta: float) -> void:
         rematch()
 
 func _reset_round() -> void:
+    if is_instance_valid(finisher):
+        finisher.queue_free()
+    finisher = null
     if cameo != null:
         cameo.reset()
     p1.reset_for_round(Vector2(130.0, 180.0), true)
@@ -195,6 +203,8 @@ func _spawn_spark(pos: Vector2) -> void:
     add_child(spark)
 
 func _process_projectiles(delta: float) -> void:
+    if p1.frozen or p2.frozen:
+        return
     for proj in get_tree().get_nodes_in_group("projectile"):
         proj.position.x += proj.velocity_x * delta
         if proj.position.x < -40.0 or proj.position.x > view_width + 40.0:
@@ -232,3 +242,21 @@ func rematch() -> void:
     GameConfig.menu_open = false
     match_state.reset_match()
     _reset_round()
+
+func _start_finisher() -> void:
+    if match_state.last_winner == 0:
+        return
+    var victor := p1 if match_state.last_winner == 1 else p2
+    var victim := p2 if victor == p1 else p1
+    var wins := match_state.p1_rounds if victor == p1 else match_state.p2_rounds
+    if victor.abilities.expansion.one_punch_victory:
+        match_state.round_end_duration = 150
+        if victor.abilities.expansion.hero.crater_active:
+            return
+    if wins < MatchState.ROUNDS_TO_WIN or victim.health > 0:
+        return
+    match_state.round_end_duration = FinisherScene.DURATION + 2
+    finisher = FinisherScene.new()
+    finisher.winner = victor
+    finisher.loser = victim
+    add_child(finisher)

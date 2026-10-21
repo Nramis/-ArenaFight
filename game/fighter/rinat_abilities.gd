@@ -2,10 +2,10 @@ class_name RinatAbilities
 extends RefCounted
 
 # Gameplay is advanced only by the owning Fighter's deterministic 60 Hz tick.
-const CHAIN_WINDUP := 14
-const CHAIN_FLIGHT := 12
+const CHAIN_WINDUP := 24
+const CHAIN_FLIGHT := 24
 const PULL_DURATION := 18
-const BIND_DURATION := 60
+const BIND_DURATION := 120
 const DRINK_DURATION := 36
 const MASTER_DURATION := 900
 const MASTER_COOLDOWN := 1200
@@ -41,7 +41,7 @@ func activate(slot: int) -> void:
         0:
             chain_direction = fighter.facing()
             chain_frames = CHAIN_WINDUP + CHAIN_FLIGHT
-            a.pose_frames = chain_frames + PULL_DURATION
+            a.pose_frames = chain_frames + 8
             fighter.emit_sound("rinatChain")
         1:
             drink_frames = DRINK_DURATION
@@ -58,6 +58,7 @@ func locked() -> bool:
 
 func tick() -> void:
     _tick_binding()
+    _tick_pull_input()
     tear_frames = maxi(0, tear_frames - 1)
     chant_frames = maxi(0, chant_frames - 1)
     if master_frames > 0:
@@ -91,8 +92,8 @@ func tick() -> void:
             fighter.abilities.flash_frames = 30
     if chain_frames > 0:
         chain_frames -= 1
-        if chain_frames == 0:
-            _catch_chain()
+        if chain_frames <= CHAIN_FLIGHT:
+            _catch_chain(1.0 - chain_frames / float(CHAIN_FLIGHT))
     if smoke_frames > 0:
         smoke_clock += 1
         smoke_frames -= 1
@@ -107,13 +108,17 @@ func tick() -> void:
             smoke_frames = SMOKE_DURATION
             smoke_clock = 0
 
-func _catch_chain() -> void:
+func _catch_chain(progress: float = 1.0) -> void:
     var target := fighter.opponent
     if not is_instance_valid(target) or target.health <= 0 or target.is_invulnerable():
         return
-    var offset := target.position - fighter.position
-    if offset.x * chain_direction < 0 or absf(offset.y) > 80 or absf(offset.x) > 310:
+    var reach := 340.0 * clampf(progress, 0, 1)
+    var origin := fighter.position + Vector2(0, -65)
+    var segment := Rect2(Vector2(origin.x if chain_direction > 0 else origin.x - reach, origin.y - 14), Vector2(reach, 37))
+    if not segment.intersects(target.hurtbox_rect()):
         return
+    chain_frames = 0
+    fighter.abilities.pose_frames = 0
     var move := MoveData.new()
     move.move_name = "RinatChain"
     move.damage = int(round(35 * fighter.abilities.damage_multiplier()))
@@ -124,8 +129,8 @@ func _catch_chain() -> void:
     else:
         target.receive_hit(move, chain_direction)
         target.abilities.rinat.bound_source = fighter
-        target.abilities.rinat.pull_frames = PULL_DURATION
-        target.abilities.rinat.bound_frames = PULL_DURATION + BIND_DURATION
+        target.abilities.rinat.pull_frames = 0
+        target.abilities.rinat.bound_frames = BIND_DURATION
         target.vel = Vector2.ZERO
         target.current_move = null
         target.hitstun_frames = 0
@@ -138,16 +143,31 @@ func _tick_binding() -> void:
     if not is_instance_valid(bound_source) or bound_source.health <= 0 or fighter.health <= 0:
         release_binding()
         return
-    if pull_frames > 0:
-        var direction := bound_source.abilities.rinat.chain_direction
-        var destination := Vector2(clampf(bound_source.position.x + direction * 48, fighter.wall_left, fighter.wall_right), fighter.ground_y)
-        fighter.position = fighter.position.lerp(destination, 1.0 / pull_frames)
-        pull_frames -= 1
-        fighter.on_ground = pull_frames == 0
     fighter.vel = Vector2.ZERO
+    fighter.position.y = fighter.ground_y
+    fighter.on_ground = true
     bound_frames -= 1
     if bound_frames == 0:
         release_binding()
+
+
+func has_bound_target() -> bool:
+    return is_instance_valid(fighter.opponent) and fighter.opponent.abilities != null and fighter.opponent.abilities.rinat.bound_source == fighter and fighter.opponent.abilities.rinat.bound_frames > 0
+
+func _tick_pull_input() -> void:
+    if not has_bound_target():
+        return
+    var held := fighter.input.lp or fighter.input.mp or fighter.input.hp or fighter.input.lk or fighter.input.mk or fighter.input.hk
+    if fighter.input_source is AIInput:
+        held = true
+    if not held:
+        return
+    var target := fighter.opponent
+    var destination := clampf(fighter.position.x + chain_direction * 48, fighter.wall_left, fighter.wall_right)
+    target.position.x = move_toward(target.position.x, destination, 3.4)
+    target.abilities.rinat.pull_frames += 1
+    fighter.attack_buffer = ""
+    fighter.attack_buffer_frames = 0
 
 func release_binding() -> void:
     bound_frames = 0
@@ -155,6 +175,8 @@ func release_binding() -> void:
     bound_source = null
 
 func interrupt() -> void:
+    if has_bound_target():
+        fighter.opponent.abilities.rinat.release_binding()
     chain_frames = 0
     smoke_windup = 0
     if drink_frames > 0:

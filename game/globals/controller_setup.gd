@@ -39,7 +39,7 @@ func _add_dir(action: String, button: int, axis: int, value: float) -> void:
 	InputMap.action_add_event(action, m)
 
 func _enter_tree() -> void:
-	var keys := {"toggle_audio":KEY_V,"p1_fly": KEY_F, "p2_fly": KEY_H, "p1_special1": KEY_Q, "p1_special2": KEY_E, "p1_special3": KEY_R, "p2_special1": KEY_P, "p2_special2": KEY_BRACKETLEFT, "p2_special3": KEY_BRACKETRIGHT}
+	var keys := {"p1_extra1":KEY_T,"p1_extra2":KEY_G,"p2_extra1":KEY_MINUS,"p2_extra2":KEY_EQUAL,"toggle_audio":KEY_V,"p1_fly": KEY_F, "p2_fly": KEY_H, "p1_special1": KEY_Q, "p1_special2": KEY_E, "p1_special3": KEY_R, "p2_special1": KEY_P, "p2_special2": KEY_BRACKETLEFT, "p2_special3": KEY_BRACKETRIGHT}
 	for action in keys:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)

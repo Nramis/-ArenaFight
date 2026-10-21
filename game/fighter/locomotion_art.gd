@@ -15,7 +15,9 @@ var breathing := 0.0
 static func handles(fighter: Fighter) -> bool:
     if fighter == null or fighter.abilities == null or fighter.state_machine.current_state == null or fighter.health <= 0:
         return false
-    if fighter.roster_name() == "rinat" or fighter.skin_id != "default":
+    if fighter.abilities.expansion.cheese_mode or PolinaHoldArt.handles(fighter) or RamisShaveArt.handles(fighter):
+        return false
+    if fighter.roster_name() == "rinat" or fighter.skin_id == "paquito":
         return false
     var a := fighter.abilities
     var state := str(fighter.state_machine.current_state.name)

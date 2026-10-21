@@ -1,13 +1,53 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {database,request,pair} from './support.mjs';
-import {skinOptions,validSkin} from '../../public/skins.mjs';
+import {skinOptions,validSkin,skinNames,portraitUrl} from '../../public/skins.mjs';
+
+const extraSkins = {
+    rafael:'neon_champion',nikita:'water_shinobi',vladislav:'luchador',mavrin:'disco_coach',
+    ramis:'solar_knight',ilgiz:'forest_ranger',bigboss:'cheese_baron',azat:'catboy',
+    polina:'storm_witch',yusup:'polar_penguin',rinat:'ice_ninja'
+};
 
 test('skins are restricted to their fighter and default safely',()=>{
-    assert.deepEqual(skinOptions('rinat'),['default','scorpion']);
-    assert.deepEqual(skinOptions('vladislav'),['default','paquito']);
+    assert.deepEqual(skinOptions('rinat'),['default','scorpion','ice_ninja']);
+    assert.deepEqual(skinOptions('vladislav'),['default','paquito','luchador']);
     assert.equal(validSkin('nikita','scorpion'),'default');
     assert.equal(validSkin('rinat','paquito'),'default');
+});
+
+test('all eleven fighters have their own additional cosmetic, matching Godot selection',()=>{
+    const godot = readFileSync(new URL('../../game/core/skins.gd',import.meta.url),'utf8');
+    const ids = JSON.parse(godot.match(/const IDS := (\{[\s\S]*?\n\})/)[1]);
+    const names = JSON.parse(godot.match(/const NAMES := (\{[\s\S]*?\n\})/)[1]);
+    assert.equal(Object.keys(extraSkins).length,11);
+    for(const [fighter,skin] of Object.entries(extraSkins)){
+        assert.deepEqual(skinOptions(fighter),ids[fighter]);
+        assert.equal(validSkin(fighter,skin),skin);
+        assert.equal(skinNames[skin],names[skin]);
+        assert.equal(portraitUrl(fighter,skin),'portraits/'+fighter+'.png');
+        for(const other of Object.keys(extraSkins)){
+            if(other!==fighter) assert.equal(validSkin(other,skin),'default');
+        }
+    }
+    assert.deepEqual(skinOptions('__proto__'),['default']);
+    assert.deepEqual(skinOptions('constructor'),['default']);
+    assert.equal(portraitUrl('rinat','scorpion'),'portraits/rinat-scorpion.png');
+    assert.equal(portraitUrl('vladislav','paquito'),'portraits/vlad-paquito.png');
+});
+
+test('each new skin survives room creation and fighter changes clear it',async()=>{
+    const db=database();
+    for(const [fighter,skin] of Object.entries(extraSkins)){
+        const host=(await request(db,'',{fighter,skin})).data;
+        const initial=(await request(db,'/'+host.code,undefined,host)).data.room;
+        assert.equal(initial.host.skin,skin);
+        const other=fighter==='nikita'?'rafael':'nikita';
+        const updated=await request(db,'/'+host.code+'/update',{fighter:other},host);
+        assert.equal(updated.status,200);
+        assert.equal(updated.data.room.host.skin,'default');
+    }
 });
 
 test('both players retain their own skin through ready, match and lobby return',async()=>{

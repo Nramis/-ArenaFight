@@ -12,6 +12,7 @@ const EFFECT = preload("res://fx/ability_effect.gd")
 var fighter: Fighter
 var yusup: YusupAbilities
 var rinat: RinatAbilities
+var expansion: ExpansionAbilities
 var conversation_source: Fighter
 var cooldowns: Array[int] = [0, 0, 0]
 var energy_frames := 0
@@ -49,6 +50,7 @@ func _init(owner_fighter: Fighter) -> void:
     fighter = owner_fighter
     yusup = YusupAbilities.new(owner_fighter)
     rinat = RinatAbilities.new(owner_fighter)
+    expansion = ExpansionAbilities.new(owner_fighter)
 
 func is_rafael() -> bool:
     return fighter.roster_name() == "rafael"
@@ -69,6 +71,7 @@ func speed_multiplier() -> float:
     return (1.65 if energy_frames > 0 else 1.0) * (1.15 if protein_frames > 0 else 1.0) * (1.1 if fish_frames > 0 else 1.0) * (1.25 if rage_frames > 0 else 1.0) * (0.5 if fat_frames > 0 else 1.0) * (1.8 if maris_frames > 0 else 1.0) * (1.0-slow_strength if slow_frames > 0 else 1.0)
 
 func tick() -> void:
+    expansion.tick()
     yusup.tick()
     rinat.tick()
     _tick_phone()
@@ -158,13 +161,13 @@ func _apply_speed() -> void:
     fighter.dash_back_speed = base["dash_back_speed"] * multiplier
 
 func locked() -> bool:
-    return rinat.locked() or conversation_locked() or stun_frames > 0 or away_frames > 0 or freeze_frames > 0 or cast_frames > 0 or pose_frames > 0 or talking_frames > 0
+    return expansion.locked() or rinat.locked() or conversation_locked() or stun_frames > 0 or away_frames > 0 or freeze_frames > 0 or cast_frames > 0 or pose_frames > 0 or talking_frames > 0
 
 func conversation_locked() -> bool:
     return yusup.story_frames > 0 or (is_instance_valid(conversation_source) and conversation_source.abilities.yusup.story_frames > 0)
 
 func activate(slot: int) -> bool:
-    if yusup.swim_frames > 0:
+    if expansion.cheese_mode or yusup.swim_frames > 0:
         return false
     if fighter.roster_name() == "yusup" and (not is_instance_valid(fighter.opponent) or fighter.opponent.health <= 0):
         return false
@@ -370,6 +373,7 @@ func _spawn(kind: String, variant: int = 0) -> void:
     fighter.get_parent().add_child(effect)
 
 func interrupt_cast() -> void:
+    expansion.interrupt()
     yusup.interrupt()
     rinat.interrupt()
     phone_frames = 0
@@ -393,6 +397,7 @@ func freeze() -> void:
     fighter.state_machine.force_state("Idle")
 
 func reset() -> void:
+    expansion.reset()
     yusup.reset()
     rinat.reset()
     conversation_source = null
@@ -441,6 +446,9 @@ func status_text() -> String:
     if cast_frames > 0:
         return "ПЬЁТ " + effect_name
     var states: Array[String] = []
+    var extra_status := expansion.status()
+    if not extra_status.is_empty():
+        states.append(extra_status)
     if rinat.master_frames > 0:
         states.append("МАСТЕР +25%% · %.1f" % (rinat.master_frames / 60.0))
     if fighter.rhythm.depleted_frames > 0:

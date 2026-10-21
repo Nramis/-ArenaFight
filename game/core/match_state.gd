@@ -14,6 +14,7 @@ const ROUND_FRAMES := 99 * 60
 const INTRO_FRAMES := 110
 const ROUND_END_FRAMES := 100
 
+var round_end_duration: int = ROUND_END_FRAMES
 var phase: int = INTRO
 var phase_frame: int = 0
 var timer: int = ROUND_FRAMES
@@ -42,7 +43,7 @@ func tick(p1_hp: int, p2_hp: int) -> String:
 				_to(ROUND_END)
 				return "round_end"
 		ROUND_END:
-			if phase_frame >= ROUND_END_FRAMES:
+			if phase_frame >= round_end_duration:
 				if p1_rounds >= ROUNDS_TO_WIN or p2_rounds >= ROUNDS_TO_WIN:
 					_to(MATCH_END)
 					return "match_end"
@@ -70,6 +71,8 @@ func _winner(p1_hp: int, p2_hp: int) -> int:
 	return -1
 
 func _to(p: int) -> void:
+	if p == ROUND_END:
+		round_end_duration = ROUND_END_FRAMES
 	phase = p
 	phase_frame = 0
 

@@ -15,7 +15,13 @@ static func resolve(attacker: Fighter, defender: Fighter) -> bool:
 		return false
 	attacker.move_has_hit = true
 	var m: MoveData = attacker.current_move
-	if defender.is_blocking(m):
+	# Empowerment is spent only on a melee contact, including a guarding opponent.
+	# Projectiles, throws and summoned helpers do not consume the punch.
+	if attacker.abilities != null and not m.is_special and attacker.abilities.expansion.consume_one_punch():
+		attacker.abilities.expansion.hero.begin(defender)
+		# Damage and the hit popup occur on the cinematic's actual impact frame.
+		return false
+	elif defender.is_blocking(m):
 		defender.receive_block(m, attacker.facing())
 	else:
 		defender.receive_hit(m, attacker.facing())

@@ -32,7 +32,7 @@ func _draw() -> void:
     var origin := Vector2(f.facing() * 22, -72)
     var target := f.opponent
     if r.chain_frames > 0 and r.chain_frames <= RinatAbilities.CHAIN_FLIGHT and is_instance_valid(target):
-        var endpoint := target.position - f.position + Vector2(0, -58)
+        var endpoint := Vector2(r.chain_direction * 340, -65)
         var progress := 1.0 - r.chain_frames / float(RinatAbilities.CHAIN_FLIGHT)
         _chain(origin, origin.lerp(endpoint, progress), true)
     if is_instance_valid(target) and target.abilities.rinat.bound_source == f and target.abilities.rinat.bound_frames > 0:
@@ -44,7 +44,7 @@ func _draw() -> void:
             for j in 7:
                 draw_arc(Vector2(-22+j*7, y+sin(j*0.8)*2), 3.5, 0, TAU, 8, Color("75899b"), 1)
     if r.chain_frames > 0 or (is_instance_valid(target) and target.abilities.rinat.bound_source == f and target.abilities.rinat.bound_frames > 0):
-        _caption("Ты Орлов? Иди сюда!", Color("ffe4a5"))
+        _caption("УДЕРЖИВАЙ УДАР · ТЯНИ!" if r.has_bound_target() else "Ты Орлов? Иди сюда!", Color("ffe4a5"))
     elif r.chant_frames > 0:
         _caption(RinatAbilities.CHANTS[r.chant_variant], Color("d9f478"))
     elif r.drink_frames > 0:

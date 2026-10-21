@@ -28,7 +28,7 @@ func test_roster_and_skin_validation() -> void:
     assert_str(Skins.valid("nikita","scorpion")).is_equal("default")
     assert_str(Skins.valid("rinat","paquito")).is_equal("default")
 
-func test_chain_pulls_then_holds_for_one_second() -> void:
+func test_chain_holds_for_two_seconds_and_requires_attack_to_pull() -> void:
     var arena := _arena()
     var source := arena.p1
     var victim := arena.p2
@@ -36,22 +36,22 @@ func test_chain_pulls_then_holds_for_one_second() -> void:
     assert_int(source.abilities.cooldowns[0]).is_equal(480)
     for frame in RinatAbilities.CHAIN_WINDUP + RinatAbilities.CHAIN_FLIGHT:
         source.abilities.tick()
-    assert_int(victim.abilities.rinat.bound_frames).is_equal(78)
-    for frame in RinatAbilities.PULL_DURATION:
+    assert_int(victim.abilities.rinat.bound_frames).is_equal(120)
+    var original_x := victim.position.x
+    victim.abilities.tick()
+    assert_float(victim.position.x).is_equal(original_x)
+    source.input.lp = true
+    for frame in 119:
+        source.abilities.tick()
         victim.abilities.tick()
     assert_float(victim.position.x).is_equal(source.position.x + 48)
-    assert_int(victim.abilities.rinat.bound_frames).is_equal(60)
-    for frame in 59:
-        victim.abilities.tick()
-        assert_bool(victim.abilities.locked()).is_true()
-    victim.abilities.tick()
     assert_bool(victim.abilities.locked()).is_false()
 
 func test_block_prevents_chain_binding() -> void:
     var arena := _arena()
     arena.p2.input.right = true
     arena.p1.abilities.activate(0)
-    for frame in 26:
+    for frame in RinatAbilities.CHAIN_WINDUP + RinatAbilities.CHAIN_FLIGHT:
         arena.p1.abilities.tick()
     assert_int(arena.p2.abilities.rinat.bound_frames).is_equal(0)
     assert_bool(arena.p2.last_hit_blocked).is_true()
